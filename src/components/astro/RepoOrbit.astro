@@ -1,0 +1,687 @@
+﻿---
+import { projects } from '../../data/projects';
+
+const palette = ['#00f5ff', '#ff2bd6', '#8cff00', '#ffe66d', '#7c5cff', '#ff7a00'];
+const orbitProjects = projects.slice(0, 32).map((project, index) => {
+  const repo = project.links.find((link) => link.type === 'repo') ?? project.links[0];
+  return {
+    title: project.title,
+    href: repo?.href ?? '#',
+    image: project.image ?? '',
+    language: project.language ?? 'Repo',
+    category: project.category ?? 'Proyecto',
+    accent: palette[index % palette.length],
+  };
+});
+---
+
+<section class="repo-orbit-panel repo-orbit-panel--color" data-repo-orbit data-reveal aria-label="Scroll orbital de repositorios">
+  <div class="repo-orbit-copy">
+    <span class="repo-orbit-kicker">THREE.JS / NEON ORBIT</span>
+    <h3>Anillo de repositorios</h3>
+    <p>
+      Baja la página y el portal gira con tus proyectos. Cada nodo usa una miniatura real y abre el repositorio al hacer clic.
+    </p>
+    <div class="repo-orbit-legend" aria-hidden="true">
+      <span><i class="legend-cyan"></i> Código</span>
+      <span><i class="legend-pink"></i> Visual</span>
+      <span><i class="legend-green"></i> Sistemas</span>
+    </div>
+  </div>
+
+  <div class="repo-orbit-stage">
+    <canvas
+      class="repo-orbit-canvas"
+      data-repo-orbit-canvas
+      data-projects={JSON.stringify(orbitProjects)}
+      aria-hidden="true"
+    ></canvas>
+    <div class="repo-orbit-grid" aria-hidden="true"></div>
+    <div class="repo-orbit-energy" aria-hidden="true"></div>
+    <div class="repo-orbit-hud">
+      <span class="repo-orbit-status">PORTAL ACTIVE</span>
+      <strong id="repoOrbitLabel">Scroll Effects</strong>
+      <small id="repoOrbitMeta">JavaScript · Visual / Interaction</small>
+      <a id="repoOrbitLink" href="https://github.com/Cde571/scroll-effects" target="_blank" rel="noopener noreferrer">
+        Abrir repo <i data-feather="external-link" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script is:inline type="module">
+  (() => {
+    const panel = document.querySelector('[data-repo-orbit]');
+    const canvas = document.querySelector('[data-repo-orbit-canvas]');
+    if (!panel || !canvas) return;
+
+    const projects = JSON.parse(canvas.dataset.projects || '[]');
+    if (!projects.length) return;
+
+    const label = document.getElementById('repoOrbitLabel');
+    const meta = document.getElementById('repoOrbitMeta');
+    const link = document.getElementById('repoOrbitLink');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const palette = [0x00f5ff, 0xff2bd6, 0x8cff00, 0xffe66d, 0x7c5cff, 0xff7a00];
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function setActive(project) {
+      if (!project) return;
+      if (label) label.textContent = project.title;
+      if (meta) meta.textContent = `${project.language || 'Repo'} · ${project.category || 'Proyecto'}`;
+      if (link) link.href = project.href || '#';
+      panel.style.setProperty('--orbit-accent', project.accent || '#00f5ff');
+    }
+
+    function getProgress() {
+      const rect = panel.getBoundingClientRect();
+      return clamp((window.innerHeight - rect.top) / (window.innerHeight + rect.height), 0, 1);
+    }
+
+    function initFallbackCanvas() {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      let w = 0;
+      let h = 0;
+      let tick = 0;
+
+      function resize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const box = panel.querySelector('.repo-orbit-stage').getBoundingClientRect();
+        w = Math.max(320, box.width);
+        h = Math.max(280, box.height);
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        canvas.style.width = `${w}px`;
+        canvas.style.height = `${h}px`;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function drawPortal(cx, cy, rx, ry, progress) {
+        const colors = ['#00f5ff', '#ff2bd6', '#8cff00', '#ffe66d'];
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        colors.forEach((color, idx) => {
+          ctx.strokeStyle = color;
+          ctx.globalAlpha = 0.16 + idx * 0.05;
+          ctx.lineWidth = 2 + idx;
+          ctx.setLineDash([12 + idx * 3, 11]);
+          ctx.lineDashOffset = -(progress * 120 + tick * 90 + idx * 18);
+          ctx.beginPath();
+          ctx.ellipse(cx, cy, rx - idx * 14, ry - idx * 7, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        });
+        ctx.restore();
+      }
+
+      function draw() {
+        tick += reduceMotion ? 0 : 0.01;
+        const p = getProgress();
+        const cx = w * 0.5;
+        const cy = h * 0.5;
+        const rx = Math.min(w * 0.38, 290);
+        const ry = Math.min(h * 0.28, 148);
+        const activeIndex = Math.floor(p * projects.length) % projects.length;
+        setActive(projects[activeIndex]);
+
+        ctx.clearRect(0, 0, w, h);
+        const glow = ctx.createRadialGradient(cx, cy, 10, cx, cy, Math.max(rx, ry) * 1.35);
+        glow.addColorStop(0, 'rgba(0,245,255,0.18)');
+        glow.addColorStop(0.46, 'rgba(255,43,214,0.09)');
+        glow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, w, h);
+
+        drawPortal(cx, cy, rx, ry, p);
+
+        projects.forEach((project, i) => {
+          const a = (i / projects.length) * Math.PI * 2 + p * Math.PI * 2.45 + tick;
+          const z = (Math.sin(a) + 1) * 0.5;
+          const x = cx + Math.cos(a) * rx;
+          const y = cy + Math.sin(a) * ry;
+          const size = 5 + z * 11;
+          const active = i === activeIndex;
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.globalAlpha = active ? 1 : 0.38 + z * 0.52;
+          ctx.shadowBlur = active ? 26 : 12 + z * 18;
+          ctx.shadowColor = project.accent || '#00f5ff';
+          ctx.fillStyle = active ? '#ffffff' : (project.accent || '#00f5ff');
+          ctx.fillRect(x - size / 2, y - size / 2, size, size);
+          if (active) {
+            ctx.strokeStyle = project.accent || '#00f5ff';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x - size, y - size, size * 2, size * 2);
+          }
+          ctx.restore();
+        });
+
+        requestAnimationFrame(draw);
+      }
+
+      resize();
+      draw();
+      window.addEventListener('resize', resize, { passive: true });
+    }
+
+    async function initThreeOrbit() {
+      let THREE;
+      try {
+        THREE = await import('https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js');
+      } catch (_) {
+        initFallbackCanvas();
+        return;
+      }
+
+      const stage = panel.querySelector('.repo-orbit-stage');
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+      const orbit = new THREE.Group();
+      const portal = new THREE.Group();
+      const textureLoader = new THREE.TextureLoader();
+      const raycaster = new THREE.Raycaster();
+      const pointer = new THREE.Vector2(99, 99);
+      const meshes = [];
+      const holders = [];
+      const portalRings = [];
+      let hovered = null;
+      let width = 1;
+      let height = 1;
+      let targetRotation = 0;
+
+      if ('outputColorSpace' in renderer) renderer.outputColorSpace = THREE.SRGBColorSpace;
+      camera.position.set(0, 0.52, 7.25);
+      scene.add(portal, orbit);
+
+      const ambient = new THREE.AmbientLight(0xffffff, 1.42);
+      const cyan = new THREE.PointLight(0x00f5ff, 3.2, 18);
+      const pink = new THREE.PointLight(0xff2bd6, 2.45, 18);
+      const green = new THREE.PointLight(0x8cff00, 1.25, 14);
+      cyan.position.set(-3.8, 2.2, 4.2);
+      pink.position.set(3.5, -1.2, 3.6);
+      green.position.set(0, 2.6, -2.4);
+      scene.add(ambient, cyan, pink, green);
+
+      const torusSettings = [
+        { radius: 3.08, tube: 0.022, color: 0x00f5ff, opacity: 0.86, y: 0 },
+        { radius: 3.26, tube: 0.014, color: 0xff2bd6, opacity: 0.62, y: 0.03 },
+        { radius: 2.88, tube: 0.010, color: 0x8cff00, opacity: 0.48, y: -0.04 },
+        { radius: 3.46, tube: 0.006, color: 0xffe66d, opacity: 0.32, y: 0.02 },
+      ];
+
+      torusSettings.forEach((setting, index) => {
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(setting.radius, setting.tube, 10, 240),
+          new THREE.MeshBasicMaterial({
+            color: setting.color,
+            transparent: true,
+            opacity: setting.opacity,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+          })
+        );
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = setting.y;
+        ring.userData.baseOpacity = setting.opacity;
+        ring.userData.speed = index % 2 === 0 ? 1 : -1;
+        portalRings.push(ring);
+        portal.add(ring);
+      });
+
+      const spiralPoints = [];
+      const spiralColors = [];
+      const color = new THREE.Color();
+      for (let i = 0; i <= 360; i++) {
+        const a = (i / 360) * Math.PI * 2;
+        const radius = 3.04 + Math.sin(a * 5) * 0.09;
+        spiralPoints.push(new THREE.Vector3(Math.cos(a) * radius, Math.sin(a * 2.25) * 0.28, Math.sin(a) * radius));
+        color.setHex(palette[i % palette.length]);
+        spiralColors.push(color.r, color.g, color.b);
+      }
+      const spiralGeometry = new THREE.BufferGeometry().setFromPoints(spiralPoints);
+      spiralGeometry.setAttribute('color', new THREE.Float32BufferAttribute(spiralColors, 3));
+      const spiral = new THREE.Line(
+        spiralGeometry,
+        new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.92, blending: THREE.AdditiveBlending })
+      );
+      portal.add(spiral);
+
+      const starCount = 260;
+      const starPositions = new Float32Array(starCount * 3);
+      const starColors = new Float32Array(starCount * 3);
+      for (let i = 0; i < starCount; i++) {
+        starPositions[i * 3] = (Math.random() - 0.5) * 8.4;
+        starPositions[i * 3 + 1] = (Math.random() - 0.5) * 4.7;
+        starPositions[i * 3 + 2] = (Math.random() - 0.5) * 5.4;
+        color.setHex(palette[i % palette.length]);
+        starColors[i * 3] = color.r;
+        starColors[i * 3 + 1] = color.g;
+        starColors[i * 3 + 2] = color.b;
+      }
+      const stars = new THREE.Points(
+        new THREE.BufferGeometry()
+          .setAttribute('position', new THREE.BufferAttribute(starPositions, 3))
+          .setAttribute('color', new THREE.BufferAttribute(starColors, 3)),
+        new THREE.PointsMaterial({ size: 0.025, transparent: true, opacity: 0.72, vertexColors: true, blending: THREE.AdditiveBlending, depthWrite: false })
+      );
+      scene.add(stars);
+
+      projects.forEach((project, index) => {
+        const a = (index / projects.length) * Math.PI * 2;
+        const holder = new THREE.Group();
+        holder.position.set(Math.cos(a) * 3.1, Math.sin(a * 2.1) * 0.38, Math.sin(a) * 3.1);
+        holder.userData.project = project;
+        holder.userData.index = index;
+        holder.userData.baseScale = 1;
+        holder.userData.accent = new THREE.Color(project.accent || '#00f5ff');
+        holders.push(holder);
+
+        const accent = new THREE.Color(project.accent || '#00f5ff');
+        const glow = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.94, 0.64),
+          new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false })
+        );
+        glow.position.z = 0.015;
+        holder.add(glow);
+
+        const base = new THREE.Mesh(
+          new THREE.BoxGeometry(0.86, 0.56, 0.04),
+          new THREE.MeshBasicMaterial({ color: 0x05070d, transparent: true, opacity: 0.88 })
+        );
+        holder.add(base);
+
+        const node = new THREE.Mesh(
+          new THREE.SphereGeometry(0.064, 18, 18),
+          new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending })
+        );
+        node.position.set(0, -0.37, 0.08);
+        holder.add(node);
+
+        const mat = new THREE.MeshBasicMaterial({ color: 0x101827, transparent: true, opacity: 0.98 });
+        const thumb = new THREE.Mesh(new THREE.PlaneGeometry(0.74, 0.44), mat);
+        thumb.position.z = 0.065;
+        thumb.userData.project = project;
+        thumb.userData.holder = holder;
+        holder.add(thumb);
+        meshes.push(thumb);
+
+        if (project.image) {
+          textureLoader.load(project.image, (texture) => {
+            texture.colorSpace = THREE.SRGBColorSpace;
+            mat.map = texture;
+            mat.needsUpdate = true;
+          });
+        }
+
+        orbit.add(holder);
+      });
+
+      function resize() {
+        const box = stage.getBoundingClientRect();
+        width = Math.max(320, box.width);
+        height = Math.max(280, box.height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      }
+
+      function updatePointer(event) {
+        const rect = canvas.getBoundingClientRect();
+        pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+      }
+
+      function clearPointer() {
+        pointer.set(99, 99);
+        hovered = null;
+        panel.classList.remove('is-orbit-hover');
+        document.body.style.cursor = '';
+      }
+
+      canvas.addEventListener('pointermove', updatePointer, { passive: true });
+      canvas.addEventListener('pointerleave', clearPointer, { passive: true });
+      canvas.addEventListener('click', () => {
+        const project = hovered?.userData?.project;
+        if (project?.href) window.open(project.href, '_blank', 'noopener,noreferrer');
+      });
+
+      function animate(time) {
+        const progress = getProgress();
+        targetRotation = progress * Math.PI * 2.35 + (reduceMotion ? 0 : time * 0.00008);
+        orbit.rotation.y += (targetRotation - orbit.rotation.y) * 0.07;
+        orbit.rotation.x += ((-0.2 + progress * 0.47) - orbit.rotation.x) * 0.05;
+        portal.rotation.y = orbit.rotation.y * 0.22;
+        portal.rotation.z = reduceMotion ? 0 : Math.sin(time * 0.00045) * 0.025;
+        stars.rotation.y += reduceMotion ? 0 : 0.00044;
+        spiral.rotation.y -= reduceMotion ? 0 : 0.0021;
+
+        portalRings.forEach((ring, index) => {
+          ring.rotation.z += reduceMotion ? 0 : 0.0015 * ring.userData.speed;
+          ring.material.opacity = ring.userData.baseOpacity + Math.sin(time * 0.0014 + index) * 0.08;
+        });
+
+        camera.position.z = 7.25 - progress * 0.92;
+        camera.position.y = 0.48 + Math.sin(progress * Math.PI) * 0.28;
+        camera.lookAt(0, 0, 0);
+
+        orbit.children.forEach((child) => {
+          if (child.isGroup) child.lookAt(camera.position);
+        });
+
+        raycaster.setFromCamera(pointer, camera);
+        const hits = raycaster.intersectObjects(meshes, false);
+        hovered = hits[0]?.object || null;
+        let activeProject;
+        let activeIndex = Math.floor(progress * projects.length) % projects.length;
+        if (hovered) {
+          activeProject = hovered.userData.project;
+          activeIndex = projects.indexOf(activeProject);
+          panel.classList.add('is-orbit-hover');
+          document.body.style.cursor = 'pointer';
+        } else {
+          activeProject = projects[activeIndex];
+          panel.classList.remove('is-orbit-hover');
+          document.body.style.cursor = '';
+        }
+        setActive(activeProject);
+
+        holders.forEach((holder, index) => {
+          const isActive = index === activeIndex || holder === hovered?.userData?.holder;
+          const scaleTarget = isActive ? 1.3 : 1;
+          holder.scale.x += (scaleTarget - holder.scale.x) * 0.12;
+          holder.scale.y += (scaleTarget - holder.scale.y) * 0.12;
+          holder.scale.z += (scaleTarget - holder.scale.z) * 0.12;
+          holder.children.forEach((child) => {
+            if (child.material && 'opacity' in child.material && child.geometry?.type === 'PlaneGeometry' && child !== meshes[index]) {
+              child.material.opacity += ((isActive ? 0.42 : 0.16) - child.material.opacity) * 0.1;
+            }
+          });
+        });
+
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      }
+
+      resize();
+      animate(0);
+      window.addEventListener('resize', resize, { passive: true });
+    }
+
+    setActive(projects[0]);
+    initThreeOrbit();
+  })();
+</script>
+
+<style>
+  .repo-orbit-panel {
+    max-width: 1400px;
+    margin: 0 auto 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--orbit-accent, #00f5ff) 40%, rgba(255,255,255,0.14));
+    border-radius: 24px;
+    background:
+      radial-gradient(circle at 18% 8%, color-mix(in srgb, var(--orbit-accent, #00f5ff) 24%, transparent), transparent 28%),
+      radial-gradient(circle at 82% 30%, rgba(255,43,214,0.18), transparent 30%),
+      radial-gradient(circle at 50% 100%, rgba(140,255,0,0.10), transparent 36%),
+      rgba(255,255,255,0.025);
+    overflow: hidden;
+    position: relative;
+    display: grid;
+    grid-template-columns: 0.85fr 1.35fr;
+    min-height: 380px;
+    box-shadow: 0 26px 90px rgba(0,0,0,0.38), 0 0 45px color-mix(in srgb, var(--orbit-accent, #00f5ff) 14%, transparent) inset;
+  }
+
+  .repo-orbit-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 23px, rgba(255,255,255,0.04) 23px 24px),
+      linear-gradient(115deg, transparent, rgba(255,255,255,0.06), transparent);
+    opacity: 0.26;
+    pointer-events: none;
+  }
+
+  .repo-orbit-panel::after {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background: conic-gradient(from 0deg, rgba(0,245,255,0.14), rgba(255,43,214,0.11), rgba(140,255,0,0.10), rgba(255,230,109,0.10), rgba(0,245,255,0.14));
+    opacity: 0.34;
+    filter: blur(42px);
+    animation: orbit-panel-glow-spin 16s linear infinite;
+    pointer-events: none;
+  }
+
+  .repo-orbit-copy {
+    position: relative;
+    z-index: 3;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .repo-orbit-kicker {
+    color: color-mix(in srgb, var(--orbit-accent, #00f5ff) 78%, white);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 18px var(--orbit-accent, #00f5ff);
+  }
+
+  .repo-orbit-copy h3 {
+    font-size: clamp(1.2rem, 2vw, 2rem);
+    line-height: 1.25;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 22px color-mix(in srgb, var(--orbit-accent, #00f5ff) 30%, transparent);
+  }
+
+  .repo-orbit-copy p {
+    font-family: var(--font-sans);
+    color: var(--text-secondary);
+    line-height: 1.75;
+    max-width: 48ch;
+  }
+
+  .repo-orbit-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1.2rem;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    color: rgba(255,255,255,0.72);
+  }
+
+  .repo-orbit-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid rgba(255,255,255,0.11);
+    border-radius: 999px;
+    padding: 0.36rem 0.56rem;
+    background: rgba(0,0,0,0.28);
+  }
+
+  .repo-orbit-legend i {
+    width: 8px;
+    height: 8px;
+    display: inline-block;
+    border-radius: 2px;
+    box-shadow: 0 0 14px currentColor;
+  }
+  .legend-cyan { color: #00f5ff; background: #00f5ff; }
+  .legend-pink { color: #ff2bd6; background: #ff2bd6; }
+  .legend-green { color: #8cff00; background: #8cff00; }
+
+  .repo-orbit-stage {
+    position: relative;
+    min-height: 380px;
+    isolation: isolate;
+  }
+
+  .repo-orbit-stage::before {
+    content: "";
+    position: absolute;
+    inset: 8% 6%;
+    z-index: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--orbit-accent, #00f5ff) 24%, transparent), transparent 28%),
+      conic-gradient(from 90deg, rgba(0,245,255,0.28), rgba(255,43,214,0.18), rgba(140,255,0,0.16), rgba(255,230,109,0.12), rgba(0,245,255,0.28));
+    filter: blur(22px);
+    opacity: 0.62;
+    animation: orbit-core-pulse 4.8s ease-in-out infinite;
+  }
+
+  .repo-orbit-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  }
+
+  .repo-orbit-grid {
+    position: absolute;
+    inset: 1.2rem;
+    z-index: 1;
+    border-radius: 22px;
+    background:
+      linear-gradient(rgba(0,245,255,0.10) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,43,214,0.08) 1px, transparent 1px);
+    background-size: 38px 38px;
+    mask-image: radial-gradient(circle at center, black, transparent 74%);
+    opacity: 0.44;
+  }
+
+  .repo-orbit-energy {
+    position: absolute;
+    inset: 14%;
+    z-index: 1;
+    border-radius: 999px;
+    border: 1px dashed color-mix(in srgb, var(--orbit-accent, #00f5ff) 55%, rgba(255,255,255,0.08));
+    box-shadow: 0 0 24px color-mix(in srgb, var(--orbit-accent, #00f5ff) 28%, transparent), inset 0 0 36px rgba(255,43,214,0.09);
+    transform: rotate(-8deg);
+    opacity: 0.58;
+    animation: orbit-dash-drift 9s linear infinite;
+    pointer-events: none;
+  }
+
+  .repo-orbit-hud {
+    position: absolute;
+    right: 1.2rem;
+    bottom: 1.2rem;
+    z-index: 4;
+    width: min(330px, calc(100% - 2.4rem));
+    padding: 1rem;
+    border: 1px solid color-mix(in srgb, var(--orbit-accent, #00f5ff) 42%, rgba(255,255,255,0.14));
+    border-radius: 18px;
+    background: rgba(0,0,0,0.62);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 18px 60px rgba(0,0,0,0.34), 0 0 28px color-mix(in srgb, var(--orbit-accent, #00f5ff) 16%, transparent);
+  }
+
+  .repo-orbit-status {
+    display: inline-flex;
+    margin-bottom: 0.6rem;
+    color: rgba(140,255,0,0.92);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+  }
+
+  .repo-orbit-hud strong {
+    display: block;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    margin-bottom: 0.35rem;
+  }
+
+  .repo-orbit-hud small {
+    display: block;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .repo-orbit-hud a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: white;
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    border: 1px solid color-mix(in srgb, var(--orbit-accent, #00f5ff) 52%, rgba(255,255,255,0.18));
+    border-radius: 999px;
+    padding: 0.48rem 0.7rem;
+    background: color-mix(in srgb, var(--orbit-accent, #00f5ff) 15%, rgba(0,0,0,0.42));
+    box-shadow: 0 0 18px color-mix(in srgb, var(--orbit-accent, #00f5ff) 18%, transparent);
+  }
+
+  .repo-orbit-panel.is-orbit-hover .repo-orbit-hud {
+    border-color: color-mix(in srgb, var(--orbit-accent, #ff2bd6) 70%, white);
+    box-shadow: 0 18px 70px color-mix(in srgb, var(--orbit-accent, #ff2bd6) 18%, transparent), 0 0 0 1px rgba(0,255,255,0.08) inset;
+  }
+
+  @keyframes orbit-panel-glow-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes orbit-core-pulse {
+    0%, 100% { transform: scale(0.96); opacity: 0.44; }
+    50% { transform: scale(1.04); opacity: 0.72; }
+  }
+
+  @keyframes orbit-dash-drift {
+    to { transform: rotate(352deg); }
+  }
+
+  @media (max-width: 980px) {
+    .repo-orbit-panel {
+      grid-template-columns: 1fr;
+    }
+    .repo-orbit-copy {
+      padding-bottom: 0.5rem;
+    }
+    .repo-orbit-stage {
+      min-height: 330px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .repo-orbit-panel {
+      margin-bottom: 1rem;
+      border-radius: 18px;
+    }
+    .repo-orbit-copy {
+      padding: 1.2rem;
+    }
+    .repo-orbit-stage {
+      min-height: 310px;
+    }
+    .repo-orbit-hud {
+      right: 0.8rem;
+      bottom: 0.8rem;
+      padding: 0.82rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .repo-orbit-panel::after,
+    .repo-orbit-stage::before,
+    .repo-orbit-energy {
+      animation: none !important;
+    }
+  }
+</style>
+

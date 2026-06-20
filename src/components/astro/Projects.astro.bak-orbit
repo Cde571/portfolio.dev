@@ -1,0 +1,37 @@
+---
+import { projects } from '../../data/projects';
+import ProjectCard from './ProjectCard.astro';
+
+const languages = Array.from(new Set(projects.map((project) => project.language).filter(Boolean))).sort();
+---
+
+<section class="projects-section" id="projects" aria-label="Projects">
+  <div class="section-header-row" data-reveal>
+    <div>
+      <h2 class="section-title">FEATURED PROJECTS</h2>
+      <p class="projects-subtitle">54 repositorios conectados con miniaturas, lenguaje y acceso directo al código.</p>
+    </div>
+    <a class="section-link" href="https://github.com/Cde571?tab=repositories" target="_blank" rel="noreferrer">
+      All GitHub repos <i data-feather="external-link" aria-hidden="true"></i>
+    </a>
+  </div>
+
+  <div class="projects-toolbar" data-reveal>
+    <label class="project-search">
+      <i data-feather="search" aria-hidden="true"></i>
+      <input id="projectSearch" type="search" placeholder="Buscar repo, lenguaje o categoría..." autocomplete="off" />
+    </label>
+    <div class="project-filter-row" aria-label="Filtros por lenguaje">
+      <button class="repo-filter is-active" type="button" data-filter="all">Todos</button>
+      {languages.map((language) => (
+        <button class="repo-filter" type="button" data-filter={language}>{language}</button>
+      ))}
+    </div>
+  </div>
+
+  <p class="project-result-count" id="projectResultCount" data-reveal>{projects.length} repositorios visibles</p>
+
+  <div class="projects-grid" id="projectsGrid">
+    {projects.map((project) => <ProjectCard project={project} />)}
+  </div>
+</section>

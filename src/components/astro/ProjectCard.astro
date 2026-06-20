@@ -1,0 +1,62 @@
+---
+import type { Project } from '../../data/projects';
+
+const { project } = Astro.props as { project: Project };
+const repoLink = project.links.find((link) => link.type === "repo") ?? project.links[0];
+---
+
+<article
+  class="project-card"
+  data-reveal
+  data-project-card
+  data-repo-href={repoLink?.href}
+  tabindex="0"
+  aria-label={`Abrir repositorio de ${project.title}`}
+>
+  <a
+    class="project-image project-image-link"
+    href={repoLink?.href}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={`Abrir ${project.title} en GitHub`}
+    data-project-action
+  >
+    {project.image ? (
+      <img
+        class="project-cover"
+        src={project.image}
+        alt={`Miniatura de ${project.title}`}
+        loading="lazy"
+        decoding="async"
+      />
+    ) : null}
+    <div class="project-placeholder">{project.placeholder}</div>
+  </a>
+
+  <div class="project-info">
+    <div class="repo-meta">
+      {project.language ? <span>{project.language}</span> : null}
+      {project.updated ? <span>{project.updated}</span> : null}
+    </div>
+    <h3>{project.title}</h3>
+    <p>{project.description}</p>
+    <div class="project-tags">
+      {project.tags.map((tag) => <span class="tag">{tag}</span>)}
+    </div>
+    <div class="project-actions">
+      {project.links.map((link) => (
+        <a
+          class="project-link"
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${link.label} de ${project.title}`}
+          data-project-action
+        >
+          {link.label}
+          <i data-feather={link.type === "demo" ? "external-link" : "github"} aria-hidden="true"></i>
+        </a>
+      ))}
+    </div>
+  </div>
+</article>

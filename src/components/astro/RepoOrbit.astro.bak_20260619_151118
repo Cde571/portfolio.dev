@@ -1,0 +1,475 @@
+﻿---
+import { projects } from '../../data/projects';
+
+const orbitProjects = projects.slice(0, 24).map((project) => {
+  const repo = project.links.find((link) => link.type === 'repo') ?? project.links[0];
+  return {
+    title: project.title,
+    href: repo?.href ?? '#',
+    image: project.image ?? '',
+    language: project.language ?? 'Repo',
+    category: project.category ?? 'Proyecto',
+  };
+});
+---
+
+<section class="repo-orbit-panel" data-repo-orbit data-reveal aria-label="Scroll orbital de repositorios">
+  <div class="repo-orbit-copy">
+    <span class="repo-orbit-kicker">THREE.JS / SCROLL MODE</span>
+    <h3>Repositorio orbital</h3>
+    <p>
+      Baja la página y el anillo gira con tus proyectos. Pasa el mouse por un nodo para ver el repo y haz clic para abrirlo.
+    </p>
+  </div>
+
+  <div class="repo-orbit-stage">
+    <canvas
+      class="repo-orbit-canvas"
+      data-repo-orbit-canvas
+      data-projects={JSON.stringify(orbitProjects)}
+      aria-hidden="true"
+    ></canvas>
+    <div class="repo-orbit-grid" aria-hidden="true"></div>
+    <div class="repo-orbit-hud">
+      <span class="repo-orbit-status">ORBIT ACTIVE</span>
+      <strong id="repoOrbitLabel">Scroll Effects</strong>
+      <small id="repoOrbitMeta">JavaScript · Visual / Interaction</small>
+      <a id="repoOrbitLink" href="https://github.com/Cde571/scroll-effects" target="_blank" rel="noopener noreferrer">
+        Abrir repo <i data-feather="external-link" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script is:inline type="module">
+  (() => {
+    const panel = document.querySelector('[data-repo-orbit]');
+    const canvas = document.querySelector('[data-repo-orbit-canvas]');
+    if (!panel || !canvas) return;
+
+    const projects = JSON.parse(canvas.dataset.projects || '[]');
+    if (!projects.length) return;
+
+    const label = document.getElementById('repoOrbitLabel');
+    const meta = document.getElementById('repoOrbitMeta');
+    const link = document.getElementById('repoOrbitLink');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function setActive(project) {
+      if (!project) return;
+      if (label) label.textContent = project.title;
+      if (meta) meta.textContent = `${project.language || 'Repo'} · ${project.category || 'Proyecto'}`;
+      if (link) link.href = project.href || '#';
+    }
+
+    function getProgress() {
+      const rect = panel.getBoundingClientRect();
+      return clamp((window.innerHeight - rect.top) / (window.innerHeight + rect.height), 0, 1);
+    }
+
+    function initFallbackCanvas() {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      let w = 0;
+      let h = 0;
+      let tick = 0;
+
+      function resize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const box = panel.querySelector('.repo-orbit-stage').getBoundingClientRect();
+        w = Math.max(320, box.width);
+        h = Math.max(280, box.height);
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        canvas.style.width = `${w}px`;
+        canvas.style.height = `${h}px`;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function draw() {
+        tick += reduceMotion ? 0 : 0.008;
+        const p = getProgress();
+        const cx = w * 0.5;
+        const cy = h * 0.5;
+        const rx = Math.min(w * 0.36, 250);
+        const ry = Math.min(h * 0.26, 130);
+        const activeIndex = Math.floor(p * projects.length) % projects.length;
+        setActive(projects[activeIndex]);
+
+        ctx.clearRect(0, 0, w, h);
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.strokeStyle = 'rgba(0,255,255,0.26)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([6, 9]);
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        projects.forEach((project, i) => {
+          const a = (i / projects.length) * Math.PI * 2 + p * Math.PI * 2 + tick;
+          const z = (Math.sin(a) + 1) * 0.5;
+          const x = cx + Math.cos(a) * rx;
+          const y = cy + Math.sin(a) * ry;
+          const size = 4 + z * 8;
+          ctx.globalAlpha = 0.35 + z * 0.65;
+          ctx.fillStyle = i === activeIndex ? '#ffffff' : '#00ffff';
+          ctx.shadowBlur = 12 + z * 20;
+          ctx.shadowColor = i === activeIndex ? '#ff00ff' : '#00ffff';
+          ctx.fillRect(x - size / 2, y - size / 2, size, size);
+        });
+
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+        requestAnimationFrame(draw);
+      }
+
+      resize();
+      draw();
+      window.addEventListener('resize', resize, { passive: true });
+    }
+
+    async function initThreeOrbit() {
+      let THREE;
+      try {
+        THREE = await import('https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js');
+      } catch (_) {
+        initFallbackCanvas();
+        return;
+      }
+
+      const stage = panel.querySelector('.repo-orbit-stage');
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+      const orbit = new THREE.Group();
+      const textureLoader = new THREE.TextureLoader();
+      const raycaster = new THREE.Raycaster();
+      const pointer = new THREE.Vector2(99, 99);
+      const meshes = [];
+      let hovered = null;
+      let width = 1;
+      let height = 1;
+      let targetRotation = 0;
+
+      camera.position.set(0, 0.45, 7.5);
+      scene.add(orbit);
+
+      const ambient = new THREE.AmbientLight(0xffffff, 1.35);
+      const cyan = new THREE.PointLight(0x00ffff, 1.8, 16);
+      const pink = new THREE.PointLight(0xff00ff, 1.2, 16);
+      cyan.position.set(-3, 2, 4);
+      pink.position.set(3, -1, 3);
+      scene.add(ambient, cyan, pink);
+
+      const ringMaterial = new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.34 });
+      const ringPoints = [];
+      for (let i = 0; i <= 160; i++) {
+        const a = (i / 160) * Math.PI * 2;
+        ringPoints.push(new THREE.Vector3(Math.cos(a) * 3.1, Math.sin(a * 2) * 0.18, Math.sin(a) * 3.1));
+      }
+      orbit.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(ringPoints), ringMaterial));
+
+      const starCount = 190;
+      const starPositions = new Float32Array(starCount * 3);
+      for (let i = 0; i < starCount; i++) {
+        starPositions[i * 3] = (Math.random() - 0.5) * 8;
+        starPositions[i * 3 + 1] = (Math.random() - 0.5) * 4.2;
+        starPositions[i * 3 + 2] = (Math.random() - 0.5) * 5;
+      }
+      const stars = new THREE.Points(
+        new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(starPositions, 3)),
+        new THREE.PointsMaterial({ color: 0xffffff, size: 0.018, transparent: true, opacity: 0.56 })
+      );
+      scene.add(stars);
+
+      projects.forEach((project, index) => {
+        const a = (index / projects.length) * Math.PI * 2;
+        const holder = new THREE.Group();
+        holder.position.set(Math.cos(a) * 3.1, Math.sin(a * 2.1) * 0.36, Math.sin(a) * 3.1);
+        holder.userData.project = project;
+
+        const base = new THREE.Mesh(
+          new THREE.BoxGeometry(0.82, 0.52, 0.045),
+          new THREE.MeshBasicMaterial({ color: 0x071018, transparent: true, opacity: 0.72 })
+        );
+        holder.add(base);
+
+        const node = new THREE.Mesh(
+          new THREE.SphereGeometry(0.055, 16, 16),
+          new THREE.MeshBasicMaterial({ color: index % 3 === 0 ? 0xff00ff : index % 3 === 1 ? 0x00ffff : 0x00ff88 })
+        );
+        node.position.set(0, -0.34, 0.03);
+        holder.add(node);
+
+        const mat = new THREE.MeshBasicMaterial({ color: 0x101827, transparent: true, opacity: 0.98 });
+        const thumb = new THREE.Mesh(new THREE.PlaneGeometry(0.72, 0.42), mat);
+        thumb.position.z = 0.04;
+        thumb.userData.project = project;
+        holder.add(thumb);
+        meshes.push(thumb);
+
+        if (project.image) {
+          textureLoader.load(project.image, (texture) => {
+            texture.colorSpace = THREE.SRGBColorSpace;
+            mat.map = texture;
+            mat.needsUpdate = true;
+          });
+        }
+
+        orbit.add(holder);
+      });
+
+      function resize() {
+        const box = stage.getBoundingClientRect();
+        width = Math.max(320, box.width);
+        height = Math.max(280, box.height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      }
+
+      function updatePointer(event) {
+        const rect = canvas.getBoundingClientRect();
+        pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+      }
+
+      function clearPointer() {
+        pointer.set(99, 99);
+        hovered = null;
+        panel.classList.remove('is-orbit-hover');
+      }
+
+      canvas.addEventListener('pointermove', updatePointer, { passive: true });
+      canvas.addEventListener('pointerleave', clearPointer, { passive: true });
+      canvas.addEventListener('click', () => {
+        const project = hovered?.userData?.project;
+        if (project?.href) window.open(project.href, '_blank', 'noopener,noreferrer');
+      });
+
+      function animate(time) {
+        const progress = getProgress();
+        targetRotation = progress * Math.PI * 2.25 + (reduceMotion ? 0 : time * 0.00007);
+        orbit.rotation.y += (targetRotation - orbit.rotation.y) * 0.07;
+        orbit.rotation.x += ((-0.18 + progress * 0.42) - orbit.rotation.x) * 0.05;
+        stars.rotation.y += reduceMotion ? 0 : 0.00035;
+        camera.position.z = 7.4 - progress * 0.85;
+        camera.lookAt(0, 0, 0);
+
+        orbit.children.forEach((child) => {
+          if (child.isGroup) child.lookAt(camera.position);
+        });
+
+        raycaster.setFromCamera(pointer, camera);
+        const hits = raycaster.intersectObjects(meshes, false);
+        hovered = hits[0]?.object || null;
+        if (hovered) {
+          setActive(hovered.userData.project);
+          panel.classList.add('is-orbit-hover');
+          document.body.style.cursor = 'pointer';
+        } else {
+          const index = Math.floor(progress * projects.length) % projects.length;
+          setActive(projects[index]);
+          panel.classList.remove('is-orbit-hover');
+          document.body.style.cursor = '';
+        }
+
+        meshes.forEach((mesh) => {
+          const active = mesh === hovered;
+          mesh.scale.x += ((active ? 1.18 : 1) - mesh.scale.x) * 0.12;
+          mesh.scale.y += ((active ? 1.18 : 1) - mesh.scale.y) * 0.12;
+        });
+
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      }
+
+      resize();
+      animate(0);
+      window.addEventListener('resize', resize, { passive: true });
+    }
+
+    setActive(projects[0]);
+    initThreeOrbit();
+  })();
+</script>
+
+<style>
+  .repo-orbit-panel {
+    max-width: 1400px;
+    margin: 0 auto 1.25rem;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 24px;
+    background:
+      radial-gradient(circle at 18% 8%, rgba(0,255,255,0.14), transparent 26%),
+      radial-gradient(circle at 82% 30%, rgba(255,0,255,0.12), transparent 28%),
+      rgba(255,255,255,0.025);
+    overflow: hidden;
+    position: relative;
+    display: grid;
+    grid-template-columns: 0.85fr 1.35fr;
+    min-height: 360px;
+  }
+
+  .repo-orbit-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0 23px, rgba(255,255,255,0.035) 23px 24px);
+    opacity: 0.22;
+    pointer-events: none;
+  }
+
+  .repo-orbit-copy {
+    position: relative;
+    z-index: 2;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .repo-orbit-kicker {
+    color: rgba(0,255,255,0.92);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+    margin-bottom: 1rem;
+  }
+
+  .repo-orbit-copy h3 {
+    font-size: clamp(1.2rem, 2vw, 2rem);
+    line-height: 1.25;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 22px rgba(0,255,255,0.22);
+  }
+
+  .repo-orbit-copy p {
+    font-family: var(--font-sans);
+    color: var(--text-secondary);
+    line-height: 1.75;
+    max-width: 46ch;
+  }
+
+  .repo-orbit-stage {
+    position: relative;
+    min-height: 360px;
+    isolation: isolate;
+  }
+
+  .repo-orbit-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  }
+
+  .repo-orbit-grid {
+    position: absolute;
+    inset: 1.2rem;
+    z-index: 1;
+    border-radius: 22px;
+    background:
+      linear-gradient(rgba(0,255,255,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,255,0.08) 1px, transparent 1px);
+    background-size: 38px 38px;
+    mask-image: radial-gradient(circle at center, black, transparent 72%);
+    opacity: 0.38;
+  }
+
+  .repo-orbit-hud {
+    position: absolute;
+    right: 1.2rem;
+    bottom: 1.2rem;
+    z-index: 4;
+    width: min(320px, calc(100% - 2.4rem));
+    padding: 1rem;
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 18px;
+    background: rgba(0,0,0,0.58);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 18px 60px rgba(0,0,0,0.34);
+  }
+
+  .repo-orbit-status {
+    display: inline-flex;
+    margin-bottom: 0.6rem;
+    color: rgba(0,255,136,0.92);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+  }
+
+  .repo-orbit-hud strong {
+    display: block;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    margin-bottom: 0.35rem;
+  }
+
+  .repo-orbit-hud small {
+    display: block;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .repo-orbit-hud a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: white;
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    border: 1px solid rgba(0,255,255,0.35);
+    border-radius: 999px;
+    padding: 0.48rem 0.7rem;
+    background: rgba(0,255,255,0.1);
+  }
+
+  .repo-orbit-panel.is-orbit-hover .repo-orbit-hud {
+    border-color: rgba(255,0,255,0.45);
+    box-shadow: 0 18px 70px rgba(255,0,255,0.14), 0 0 0 1px rgba(0,255,255,0.08) inset;
+  }
+
+  @media (max-width: 980px) {
+    .repo-orbit-panel {
+      grid-template-columns: 1fr;
+    }
+    .repo-orbit-copy {
+      padding-bottom: 0.5rem;
+    }
+    .repo-orbit-stage {
+      min-height: 320px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .repo-orbit-panel {
+      margin-bottom: 1rem;
+      border-radius: 18px;
+    }
+    .repo-orbit-copy {
+      padding: 1.2rem;
+    }
+    .repo-orbit-stage {
+      min-height: 300px;
+    }
+    .repo-orbit-hud {
+      right: 0.8rem;
+      bottom: 0.8rem;
+      padding: 0.82rem;
+    }
+  }
+</style>
+

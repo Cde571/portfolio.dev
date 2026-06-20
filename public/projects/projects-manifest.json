@@ -1,0 +1,884 @@
+{
+  "github_profile": "https://github.com/Cde571?tab=repositories",
+  "repo_cards": 54,
+  "images_generated": 54,
+  "features": [
+    "fixed repository hrefs",
+    "clickable card and image",
+    "repo search",
+    "language filters",
+    "scroll stagger",
+    "cover parallax"
+  ],
+  "repos": [
+    {
+      "name": "scroll-effects",
+      "title": "Scroll Effects",
+      "slug": "scroll-effects",
+      "language": "JavaScript",
+      "updated": "Jun 17, 2026",
+      "description": "Experimental scroll effects, transitions and motion interactions for modern web interfaces.",
+      "category": "Visual / Interaction",
+      "tags": [
+        "JavaScript",
+        "Frontend",
+        "Visual / Interaction"
+      ],
+      "url": "https://github.com/Cde571/scroll-effects",
+      "image": "/projects/covers/scroll-effects.png"
+    },
+    {
+      "name": "SistemaSolar3D",
+      "title": "Sistema Solar 3D",
+      "slug": "sistemasolar3d",
+      "language": "JavaScript",
+      "updated": "Jun 17, 2026",
+      "description": "Interactive 3D solar system experience built around planets, space visuals and browser rendering.",
+      "category": "Visual / Interaction",
+      "tags": [
+        "JavaScript",
+        "Frontend",
+        "Visual / Interaction"
+      ],
+      "url": "https://github.com/Cde571/SistemaSolar3D",
+      "image": "/projects/covers/sistemasolar3d.png"
+    },
+    {
+      "name": "GraphQL-Projects",
+      "title": "GraphQL Projects",
+      "slug": "graphql-projects",
+      "language": "JavaScript",
+      "updated": "Jun 9, 2026",
+      "description": "GraphQL practice projects focused on API queries, schemas and data-driven web integrations.",
+      "category": "Backend / APIs",
+      "tags": [
+        "JavaScript",
+        "Frontend",
+        "Backend / APIs"
+      ],
+      "url": "https://github.com/Cde571/GraphQL-Projects",
+      "image": "/projects/covers/graphql-projects.png"
+    },
+    {
+      "name": "flappy_ml",
+      "title": "Flappy Ml",
+      "slug": "flappy-ml",
+      "language": "Python",
+      "updated": "Jun 3, 2026",
+      "description": "Machine learning experiment inspired by Flappy Bird mechanics and agent-style gameplay.",
+      "category": "AI / Computer Vision",
+      "tags": [
+        "Python",
+        "AI/Data",
+        "AI / Computer Vision"
+      ],
+      "url": "https://github.com/Cde571/flappy_ml",
+      "image": "/projects/covers/flappy-ml.png"
+    },
+    {
+      "name": "obs-overlay-builder-cde57",
+      "title": "Obs Overlay Builder Cde57",
+      "slug": "obs-overlay-builder-cde57",
+      "language": "JavaScript",
+      "updated": "Jun 2, 2026",
+      "description": "Overlay builder for OBS scenes, streaming layouts and creator-friendly visual components.",
+      "category": "Projects",
+      "tags": [
+        "JavaScript",
+        "Frontend",
+        "Projects"
+      ],
+      "url": "https://github.com/Cde571/obs-overlay-builder-cde57",
+      "image": "/projects/covers/obs-overlay-builder-cde57.png"
+    },
+    {
+      "name": "Practica_Hilos",
+      "title": "Practica Hilos",
+      "slug": "practica-hilos",
+      "language": "C",
+      "updated": "May 26, 2026",
+      "description": "Operating systems practice focused on threads, concurrency and process-level programming in C.",
+      "category": "Systems / Academic",
+      "tags": [
+        "C",
+        "Systems",
+        "Systems / Academic"
+      ],
+      "url": "https://github.com/Cde571/Practica_Hilos",
+      "image": "/projects/covers/practica-hilos.png"
+    },
+    {
+      "name": "bank_frontend",
+      "title": "Bank Frontend",
+      "slug": "bank-frontend",
+      "language": "HTML",
+      "updated": "May 26, 2026",
+      "description": "Frontend interface for a banking project with screens, forms and digital banking workflows.",
+      "category": "Backend / APIs",
+      "tags": [
+        "HTML",
+        "Frontend",
+        "Backend / APIs"
+      ],
+      "url": "https://github.com/Cde571/bank_frontend",
+      "image": "/projects/covers/bank-frontend.png"
+    },
+    {
+      "name": "jarvis-os",
+      "title": "Jarvis Os",
+      "slug": "jarvis-os",
+      "language": "Python",
+      "updated": "May 19, 2026",
+      "description": "Assistant-style operating system experiment with automation, Python utilities and AI-oriented workflows.",
+      "category": "Projects",
+      "tags": [
+        "Python",
+        "AI/Data",
+        "Projects"
+      ],
+      "url": "https://github.com/Cde571/jarvis-os",
+      "image": "/projects/covers/jarvis-os.png"
+    },
+    {
+      "name": "WordCup2026-frontend",
+      "title": "World Cup 2026 Frontend",
+      "slug": "wordcup2026-frontend",
+      "language": "TypeScript",
+      "updated": "May 12, 2026",
+      "description": "Frontend for World Cup 2026 data, predictions, match views and tournament interfaces.",
+      "category": "Web / Frontend",
+      "tags": [
+        "TypeScript",
+        "Frontend",
+        "Web / Frontend"
+      ],
+      "url": "https://github.com/Cde571/WordCup2026-frontend",
+      "image": "/projects/covers/wordcup2026-frontend.png"
+    },
+    {
+      "name": "API-BACKEND-WORDCUP",
+      "title": "API Backend World Cup",
+      "slug": "api-backend-wordcup",
+      "language": "HTML",
+      "updated": "May 12, 2026",
+      "description": "Backend/API project supporting World Cup data flows, endpoints and frontend integration.",
+      "category": "Backend / APIs",
+      "tags": [
+        "HTML",
+        "Frontend",
+        "Backend / APIs"
+      ],
+      "url": "https://github.com/Cde571/API-BACKEND-WORDCUP",
+      "image": "/projects/covers/api-backend-wordcup.png"
+    },
+    {
+      "name": "portfolio.dev",
+      "title": "Portfolio Dev",
+      "slug": "portfolio-dev",
+      "language": "Astro",
+      "updated": "May 12, 2026",
+      "description": "Personal developer portfolio with Astro, arcade identity, animated sections and GitHub project links.",
+      "category": "Web / Frontend",
+      "tags": [
+        "Astro",
+        "UI",
+        "Web / Frontend"
+      ],
+      "url": "https://github.com/Cde571/portfolio.dev",
+      "image": "/projects/covers/portfolio-dev.png"
+    },
+    {
+      "name": "lab22026v-completo",
+      "title": "Lab22026v Completo",
+      "slug": "lab22026v-completo",
+      "language": "Java",
+      "updated": "Apr 26, 2026",
+      "description": "Java laboratory project with academic exercises, structured code and object-oriented practice.",
+      "category": "Systems / Academic",
+      "tags": [
+        "Java",
+        "Backend",
+        "Systems / Academic"
+      ],
+      "url": "https://github.com/Cde571/lab22026v-completo",
+      "image": "/projects/covers/lab22026v-completo.png"
+    },
+    {
+      "name": "proyecto_sustituto",
+      "title": "Proyecto Sustituto",
+      "slug": "proyecto-sustituto",
+      "language": "Jupyter Notebook",
+      "updated": "Apr 25, 2026",
+      "description": "Data science notebook project with analysis, modeling and prediction-oriented experimentation.",
+      "category": "AI / Computer Vision",
+      "tags": [
+        "Python",
+        "Notebook",
+        "Data",
+        "AI / Computer Vision"
+      ],
+      "url": "https://github.com/Cde571/proyecto_sustituto",
+      "image": "/projects/covers/proyecto-sustituto.png"
+    },
+    {
+      "name": "Pr-ctica-No.-2-API-de-Procesos-",
+      "title": "Practica No. 2 API de Procesos",
+      "slug": "pr-ctica-no-2-api-de-procesos",
+      "language": "C",
+      "updated": "Apr 20, 2026",
+      "description": "Systems programming practice around process APIs, shell behavior and operating-system-level execution.",
+      "category": "Backend / APIs",
+      "tags": [
+        "C",
+        "Systems",
+        "Backend / APIs"
+      ],
+      "url": "https://github.com/Cde571/Pr-ctica-No.-2-API-de-Procesos-",
+      "image": "/projects/covers/pr-ctica-no-2-api-de-procesos.png"
+    },
+    {
+      "name": "cameras-security",
+      "title": "Cameras Security",
+      "slug": "cameras-security",
+      "language": "TypeScript",
+      "updated": "Apr 17, 2026",
+      "description": "Smart CCTV/security platform concept with dashboards, AI search and monitoring workflows.",
+      "category": "Projects",
+      "tags": [
+        "TypeScript",
+        "Frontend",
+        "Projects"
+      ],
+      "url": "https://github.com/Cde571/cameras-security",
+      "image": "/projects/covers/cameras-security.png"
+    },
+    {
+      "name": "Cde571",
+      "title": "Cde571 Profile",
+      "slug": "cde571",
+      "language": "Markdown",
+      "updated": "Apr 13, 2026",
+      "description": "GitHub profile configuration repository with personal profile content and metadata.",
+      "category": "Projects",
+      "tags": [
+        "GitHub",
+        "Profile",
+        "Projects"
+      ],
+      "url": "https://github.com/Cde571/Cde571",
+      "image": "/projects/covers/cde571.png"
+    },
+    {
+      "name": "bankapp",
+      "title": "Bankapp",
+      "slug": "bankapp",
+      "language": "Java",
+      "updated": "Mar 18, 2026",
+      "description": "Banking backend/application work for transactions, accounts and business rules in Java.",
+      "category": "Backend / APIs",
+      "tags": [
+        "Java",
+        "Backend",
+        "Backend / APIs"
+      ],
+      "url": "https://github.com/Cde571/bankapp",
+      "image": "/projects/covers/bankapp.png"
+    },
+    {
+      "name": "so_lab1",
+      "title": "So Lab1",
+      "slug": "so-lab1",
+      "language": "C",
+      "updated": "Mar 17, 2026",
+      "description": "Operating systems lab focused on C programming, processes and low-level computational concepts.",
+      "category": "Systems / Academic",
+      "tags": [
+        "C",
+        "Systems",
+        "Systems / Academic"
+      ],
+      "url": "https://github.com/Cde571/so_lab1",
+      "image": "/projects/covers/so-lab1.png"
+    },
+    {
+      "name": "food-emotions",
+      "title": "Food Emotions",
+      "slug": "food-emotions",
+      "language": "Astro",
+      "updated": "Dec 9, 2025",
+      "description": "Frontend for FoodEmotions, a platform with emotion-aware food recommendations and interactive modules.",
+      "category": "Projects",
+      "tags": [
+        "Astro",
+        "UI",
+        "Projects"
+      ],
+      "url": "https://github.com/Cde571/food-emotions",
+      "image": "/projects/covers/food-emotions.png"
+    },
+    {
+      "name": "SIGED",
+      "title": "SIGED",
+      "slug": "siged",
+      "language": "Other",
+      "updated": "Oct 6, 2025",
+      "description": "Management-oriented system project for institutional workflows and academic software practice.",
+      "category": "Projects",
+      "tags": [
+        "Project",
+        "Web",
+        "Projects"
+      ],
+      "url": "https://github.com/Cde571/SIGED",
+      "image": "/projects/covers/siged.png"
+    },
+    {
+      "name": "foodemotions--back",
+      "title": "Foodemotions Back",
+      "slug": "foodemotions-back",
+      "language": "Jupyter Notebook",
+      "updated": "Nov 19, 2024",
+      "description": "Backend/data side of FoodEmotions with AI, notebooks and recommendation-oriented logic.",
+      "category": "Systems / Academic",
+      "tags": [
+        "Python",
+        "Notebook",
+        "Data",
+        "Systems / Academic"
+      ],
+      "url": "https://github.com/Cde571/foodemotions--back",
+      "image": "/projects/covers/foodemotions-back.png"
+    },
+    {
+      "name": "gestion-asientos",
+      "title": "Gestion Asientos",
+      "slug": "gestion-asientos",
+      "language": "CSS",
+      "updated": "Nov 18, 2024",
+      "description": "Seat management interface with layout styling, UI structure and reservation-oriented views.",
+      "category": "Projects",
+      "tags": [
+        "CSS",
+        "UI",
+        "Projects"
+      ],
+      "url": "https://github.com/Cde571/gestion-asientos",
+      "image": "/projects/covers/gestion-asientos.png"
+    },
+    {
+      "name": "udea_ai4eng_semestre2",
+      "title": "Udea Ai4eng Semestre2",
+      "slug": "udea-ai4eng-semestre2",
+      "language": "Jupyter Notebook",
+      "updated": "Nov 16, 2024",
+      "description": "AI for engineering academic notebooks, exercises and applied computational learning.",
+      "category": "AI / Computer Vision",
+      "tags": [
+        "Python",
+        "Notebook",
+        "Data",
+        "AI / Computer Vision"
+      ],
+      "url": "https://github.com/Cde571/udea_ai4eng_semestre2",
+      "image": "/projects/covers/udea-ai4eng-semestre2.png"
+    },
+    {
+      "name": "stream_fighter_educativo",
+      "title": "Stream Fighter Educativo",
+      "slug": "stream-fighter-educativo",
+      "language": "Astro",
+      "updated": "Jul 4, 2024",
+      "description": "Educational arcade-style project with streaming/fighter visual identity and interactive frontend.",
+      "category": "Projects",
+      "tags": [
+        "Astro",
+        "UI",
+        "Projects"
+      ],
+      "url": "https://github.com/Cde571/stream_fighter_educativo",
+      "image": "/projects/covers/stream-fighter-educativo.png"
+    },
+    {
+      "name": "page_community",
+      "title": "Page Community",
+      "slug": "page-community",
+      "language": "TypeScript",
+      "updated": "Jun 13, 2024",
+      "description": "Community webpage/frontend project using TypeScript components and structured UI.",
+      "category": "Web / Frontend",
+      "tags": [
+        "TypeScript",
+        "Frontend",
+        "Web / Frontend"
+      ],
+      "url": "https://github.com/Cde571/page_community",
+      "image": "/projects/covers/page-community.png"
+    },
+    {
+      "name": "CNN-RED",
+      "title": "CNN Red",
+      "slug": "cnn-red",
+      "language": "Jupyter Notebook",
+      "updated": "Jun 1, 2024",
+      "description": "Convolutional neural network notebook project for image/data experiments and AI practice.",
+      "category": "AI / Computer Vision",
+      "tags": [
+        "Python",
+        "Notebook",
+        "Data",
+        "AI / Computer Vision"
+      ],
+      "url": "https://github.com/Cde571/CNN-RED",
+      "image": "/projects/covers/cnn-red.png"
+    },
+    {
+      "name": "WeatherApp00",
+      "title": "Weather App 00",
+      "slug": "weatherapp00",
+      "language": "CSS",
+      "updated": "Apr 22, 2024",
+      "description": "Simple weather application with styled interface and climate-data presentation.",
+      "category": "Web / Frontend",
+      "tags": [
+        "CSS",
+        "UI",
+        "Web / Frontend"
+      ],
+      "url": "https://github.com/Cde571/WeatherApp00",
+      "image": "/projects/covers/weatherapp00.png"
+    },
+    {
+      "name": "Component_CRUD",
+      "title": "Component CRUD",
+      "slug": "component-crud",
+      "language": "Other",
+      "updated": "Apr 13, 2024",
+      "description": "CRUD component for flight management, records and basic data operations.",
+      "category": "Backend / APIs",
+      "tags": [
+        "Project",
+        "Web",
+        "Backend / APIs"
+      ],
+      "url": "https://github.com/Cde571/Component_CRUD",
+      "image": "/projects/covers/component-crud.png"
+    },
+    {
+      "name": "ball_experiment",
+      "title": "Ball Experiment",
+      "slug": "ball-experiment",
+      "language": "Python",
+      "updated": "Apr 2, 2024",
+      "description": "Python experiment with ball motion, logic and visual/physical behavior testing.",
+      "category": "Visual / Interaction",
+      "tags": [
+        "Python",
+        "AI/Data",
+        "Visual / Interaction"
+      ],
+      "url": "https://github.com/Cde571/ball_experiment",
+      "image": "/projects/covers/ball-experiment.png"
+    },
+    {
+      "name": "detector_carroz",
+      "title": "Detector Carroz",
+      "slug": "detector-carroz",
+      "language": "Python",
+      "updated": "Apr 2, 2024",
+      "description": "Computer vision experiment for vehicle/car detection using Python workflows.",
+      "category": "AI / Computer Vision",
+      "tags": [
+        "Python",
+        "AI/Data",
+        "AI / Computer Vision"
+      ],
+      "url": "https://github.com/Cde571/detector_carroz",
+      "image": "/projects/covers/detector-carroz.png"
+    },
+    {
+      "name": "profesional-new",
+      "title": "Profesional New",
+      "slug": "profesional-new",
+      "language": "Astro",
+      "updated": "Mar 26, 2024",
+      "description": "Professional webpage prototype built with Astro and a clean personal/portfolio structure.",
+      "category": "Web / Frontend",
+      "tags": [
+        "Astro",
+        "UI",
+        "Web / Frontend"
+      ],
+      "url": "https://github.com/Cde571/profesional-new",
+      "image": "/projects/covers/profesional-new.png"
+    },
+    {
+      "name": "pages-news",
+      "title": "Pages News",
+      "slug": "pages-news",
+      "language": "CSS",
+      "updated": "Mar 22, 2024",
+      "description": "News-style page focused on layout, responsive sections and CSS presentation.",
+      "category": "Web / Frontend",
+      "tags": [
+        "CSS",
+        "UI",
+        "Web / Frontend"
+      ],
+      "url": "https://github.com/Cde571/pages-news",
+      "image": "/projects/covers/pages-news.png"
+    },
+    {
+      "name": "page-finca",
+      "title": "Page Finca",
+      "slug": "page-finca",
+      "language": "Astro",
+      "updated": "Mar 19, 2024",
+      "description": "Finca/business landing page with Astro components and presentational sections.",
+      "category": "Web / Frontend",
+      "tags": [
+        "Astro",
+        "UI",
+        "Web / Frontend"
+      ],
+      "url": "https://github.com/Cde571/page-finca",
+      "image": "/projects/covers/page-finca.png"
+    },
+    {
+      "name": "develop_android",
+      "title": "Develop Android",
+      "slug": "develop-android",
+      "language": "Kotlin",
+      "updated": "Mar 5, 2024",
+      "description": "Android development project using Kotlin, mobile screens and native app concepts.",
+      "category": "Mobile / Android",
+      "tags": [
+        "Kotlin",
+        "Android",
+        "Mobile / Android"
+      ],
+      "url": "https://github.com/Cde571/develop_android",
+      "image": "/projects/covers/develop-android.png"
+    },
+    {
+      "name": "cosmo-asistence",
+      "title": "Cosmo Asistence",
+      "slug": "cosmo-asistence",
+      "language": "Python",
+      "updated": "Feb 26, 2024",
+      "description": "Python assistant project with automation and utility-oriented routines.",
+      "category": "Projects",
+      "tags": [
+        "Python",
+        "AI/Data",
+        "Projects"
+      ],
+      "url": "https://github.com/Cde571/cosmo-asistence",
+      "image": "/projects/covers/cosmo-asistence.png"
+    },
+    {
+      "name": "cube-loading",
+      "title": "Cube Loading",
+      "slug": "cube-loading",
+      "language": "CSS",
+      "updated": "Feb 20, 2024",
+      "description": "CSS cube-loading animation experiment for UI motion and microinteraction practice.",
+      "category": "Visual / Interaction",
+      "tags": [
+        "CSS",
+        "UI",
+        "Visual / Interaction"
+      ],
+      "url": "https://github.com/Cde571/cube-loading",
+      "image": "/projects/covers/cube-loading.png"
+    },
+    {
+      "name": "rembg-image",
+      "title": "Rembg Image",
+      "slug": "rembg-image",
+      "language": "Python",
+      "updated": "Feb 20, 2024",
+      "description": "Image background removal workflow using Python tools and automated processing.",
+      "category": "AI / Computer Vision",
+      "tags": [
+        "Python",
+        "AI/Data",
+        "AI / Computer Vision"
+      ],
+      "url": "https://github.com/Cde571/rembg-image",
+      "image": "/projects/covers/rembg-image.png"
+    },
+    {
+      "name": "learning-reACT",
+      "title": "Learning ReACT",
+      "slug": "learning-react",
+      "language": "JavaScript",
+      "updated": "Feb 17, 2024",
+      "description": "React learning repository with JavaScript components and frontend practice.",
+      "category": "Projects",
+      "tags": [
+        "JavaScript",
+        "Frontend",
+        "Projects"
+      ],
+      "url": "https://github.com/Cde571/learning-reACT",
+      "image": "/projects/covers/learning-react.png"
+    },
+    {
+      "name": "detector_colores",
+      "title": "Detector Colores",
+      "slug": "detector-colores",
+      "language": "Python",
+      "updated": "Feb 15, 2024",
+      "description": "Color detection experiment using Python and computer vision techniques.",
+      "category": "AI / Computer Vision",
+      "tags": [
+        "Python",
+        "AI/Data",
+        "AI / Computer Vision"
+      ],
+      "url": "https://github.com/Cde571/detector_colores",
+      "image": "/projects/covers/detector-colores.png"
+    },
+    {
+      "name": "open-cv-restador-elementos",
+      "title": "Open Cv Restador Elementos",
+      "slug": "open-cv-restador-elementos",
+      "language": "Python",
+      "updated": "Feb 15, 2024",
+      "description": "OpenCV project for restoring or removing elements from images with computer vision tools.",
+      "category": "Projects",
+      "tags": [
+        "Python",
+        "AI/Data",
+        "Projects"
+      ],
+      "url": "https://github.com/Cde571/open-cv-restador-elementos",
+      "image": "/projects/covers/open-cv-restador-elementos.png"
+    },
+    {
+      "name": "TecoGAN",
+      "title": "TecoGAN",
+      "slug": "tecogan",
+      "language": "Other",
+      "updated": "Feb 7, 2024",
+      "description": "Video/image enhancement research repository around GAN-based restoration concepts.",
+      "category": "AI / Computer Vision",
+      "tags": [
+        "Project",
+        "Web",
+        "AI / Computer Vision"
+      ],
+      "url": "https://github.com/Cde571/TecoGAN",
+      "image": "/projects/covers/tecogan.png"
+    },
+    {
+      "name": "page-new",
+      "title": "Page New",
+      "slug": "page-new",
+      "language": "Astro",
+      "updated": "Jan 25, 2024",
+      "description": "Astro page prototype for layout practice, sections and web composition.",
+      "category": "Web / Frontend",
+      "tags": [
+        "Astro",
+        "UI",
+        "Web / Frontend"
+      ],
+      "url": "https://github.com/Cde571/page-new",
+      "image": "/projects/covers/page-new.png"
+    },
+    {
+      "name": "esland-web",
+      "title": "Esland Web",
+      "slug": "esland-web",
+      "language": "Astro",
+      "updated": "Jan 25, 2024",
+      "description": "Webpage inspired by event/media presentation with Astro and structured UI sections.",
+      "category": "Web / Frontend",
+      "tags": [
+        "Astro",
+        "UI",
+        "Web / Frontend"
+      ],
+      "url": "https://github.com/Cde571/esland-web",
+      "image": "/projects/covers/esland-web.png"
+    },
+    {
+      "name": "new-page",
+      "title": "New Page",
+      "slug": "new-page",
+      "language": "Other",
+      "updated": "Jan 25, 2024",
+      "description": "Educational webpage prototype with foundational content and layout exploration.",
+      "category": "Web / Frontend",
+      "tags": [
+        "Project",
+        "Web",
+        "Web / Frontend"
+      ],
+      "url": "https://github.com/Cde571/new-page",
+      "image": "/projects/covers/new-page.png"
+    },
+    {
+      "name": "WeatherApp",
+      "title": "WeatherApp",
+      "slug": "weatherapp",
+      "language": "Other",
+      "updated": "Jan 5, 2024",
+      "description": "Simple weather app repository with weather UI and basic application flow.",
+      "category": "Web / Frontend",
+      "tags": [
+        "Project",
+        "Web",
+        "Web / Frontend"
+      ],
+      "url": "https://github.com/Cde571/WeatherApp",
+      "image": "/projects/covers/weatherapp.png"
+    },
+    {
+      "name": "CalculadoraAstro",
+      "title": "CalculadoraAstro",
+      "slug": "calculadoraastro",
+      "language": "Astro",
+      "updated": "Dec 30, 2023",
+      "description": "Calculator project built with Astro, focused on component structure and UI interactions.",
+      "category": "Web / Frontend",
+      "tags": [
+        "Astro",
+        "UI",
+        "Web / Frontend"
+      ],
+      "url": "https://github.com/Cde571/CalculadoraAstro",
+      "image": "/projects/covers/calculadoraastro.png"
+    },
+    {
+      "name": "CdeA",
+      "title": "CdeA",
+      "slug": "cdea",
+      "language": "Other",
+      "updated": "Dec 15, 2023",
+      "description": "Early academic repository for web/programming practice and foundational coursework.",
+      "category": "Projects",
+      "tags": [
+        "Project",
+        "Web",
+        "Projects"
+      ],
+      "url": "https://github.com/Cde571/CdeA",
+      "image": "/projects/covers/cdea.png"
+    },
+    {
+      "name": "Colas",
+      "title": "Colas",
+      "slug": "colas",
+      "language": "Jupyter Notebook",
+      "updated": "Sep 21, 2023",
+      "description": "Notebook project focused on queues, structures and academic computational exercises.",
+      "category": "Systems / Academic",
+      "tags": [
+        "Python",
+        "Notebook",
+        "Data",
+        "Systems / Academic"
+      ],
+      "url": "https://github.com/Cde571/Colas",
+      "image": "/projects/covers/colas.png"
+    },
+    {
+      "name": "WEB",
+      "title": "WEB",
+      "slug": "web",
+      "language": "HTML",
+      "updated": "May 31, 2023",
+      "description": "Foundational HTML web project with page structure and frontend practice.",
+      "category": "Web / Frontend",
+      "tags": [
+        "HTML",
+        "Frontend",
+        "Web / Frontend"
+      ],
+      "url": "https://github.com/Cde571/WEB",
+      "image": "/projects/covers/web.png"
+    },
+    {
+      "name": "ListasLigadasColas",
+      "title": "Listas Ligadas y Colas",
+      "slug": "listasligadascolas",
+      "language": "Java",
+      "updated": "May 18, 2023",
+      "description": "Java data structures project focused on linked lists and queue implementations.",
+      "category": "Systems / Academic",
+      "tags": [
+        "Java",
+        "Backend",
+        "Systems / Academic"
+      ],
+      "url": "https://github.com/Cde571/ListasLigadasColas",
+      "image": "/projects/covers/listasligadascolas.png"
+    },
+    {
+      "name": "CuentaPalabras",
+      "title": "Cuenta Palabras",
+      "slug": "cuentapalabras",
+      "language": "Java",
+      "updated": "Apr 26, 2023",
+      "description": "Java interface/project for counting words and practicing basic application logic.",
+      "category": "Systems / Academic",
+      "tags": [
+        "Java",
+        "Backend",
+        "Systems / Academic"
+      ],
+      "url": "https://github.com/Cde571/CuentaPalabras",
+      "image": "/projects/covers/cuentapalabras.png"
+    },
+    {
+      "name": "ZooComplete",
+      "title": "Zoo Complete",
+      "slug": "zoocomplete",
+      "language": "Java",
+      "updated": "Mar 31, 2023",
+      "description": "Java academic project around zoo/domain modeling and object-oriented practice.",
+      "category": "Systems / Academic",
+      "tags": [
+        "Java",
+        "Backend",
+        "Systems / Academic"
+      ],
+      "url": "https://github.com/Cde571/ZooComplete",
+      "image": "/projects/covers/zoocomplete.png"
+    },
+    {
+      "name": "Zoologico",
+      "title": "Zoologico",
+      "slug": "zoologico",
+      "language": "Other",
+      "updated": "Mar 31, 2023",
+      "description": "Zoo/domain academic delivery with modeling, documentation and structured exercises.",
+      "category": "Systems / Academic",
+      "tags": [
+        "Project",
+        "Web",
+        "Systems / Academic"
+      ],
+      "url": "https://github.com/Cde571/Zoologico",
+      "image": "/projects/covers/zoologico.png"
+    },
+    {
+      "name": "Zoo",
+      "title": "Zoo",
+      "slug": "zoo",
+      "language": "Java",
+      "updated": "Mar 23, 2023",
+      "description": "Java zoo project with object-oriented foundations and class-based domain modeling.",
+      "category": "Systems / Academic",
+      "tags": [
+        "Java",
+        "Backend",
+        "Systems / Academic"
+      ],
+      "url": "https://github.com/Cde571/Zoo",
+      "image": "/projects/covers/zoo.png"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Portfolio Arcade - Player One</title>
+		<meta name="description" content="Portfolio estilo arcade retro con efectos neón y animaciones pixeladas" />
+	</head>
+	<body>
+		<slot />
+	</body>
+</html>
+
+<style is:global>
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+
+	html,
+	body {
+		width: 100%;
+		height: 100%;
+		overflow-x: hidden;
+	}
+
+	body {
+		background: #0a0a0a;
+		color: #00ff00;
+	}
+
+	html {
+		scroll-behavior: smooth;
+	}
+
+	::-webkit-scrollbar {
+		width: 12px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: #0a0a0a;
+		border-left: 2px solid #049393;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: #03959a;
+		border: 2px solid #0a0a0a;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		background: #00ffff;
+	}
+
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: #00ff00 #0a0a0a;
+	}
+</style>

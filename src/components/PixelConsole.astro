@@ -1,0 +1,1517 @@
+﻿---
+/**
+ * PixelConsole.astro - Enhanced Compact Version (FIXED)
+ * Fixes:
+ * - Arrow keys: focus + “armed” mode (click/focus inside console)
+ * - Init: DOMContentLoaded + astro:page-load
+ * - Grain visibility: higher z-index + better blend/opacity + fallback texture
+ * - YouTube modal: music:video
+ */
+const {
+  screenImage = "/images/pixel-scene.png",
+  clickSfx = "/sfx/click.mp3",
+  musicSrc = "/music/theme.mp3",
+  backHash = "#home",
+  musicVideoId = "bdehC-ZMT7M",
+  menu = [
+    { label: "portfolio", action: "#projects" },
+    { label: "play", action: "music:toggle" },
+    { label: "resume", action: "/resume.pdf" },
+    { label: "music", action: "music:video" },
+  ],
+} = Astro.props;
+---
+
+<section class="pc-wrap" aria-label="Pixel console">
+  <div class="pc-stage">
+    <!-- tabindex para que la consola pueda recibir foco -->
+    <div class="pc-console" data-console tabindex="0" aria-label="Console body">
+      <!-- Screen -->
+      <div class="pc-screen" data-screen role="application" aria-label="Console screen">
+        <div class="pc-screen-bezel">
+          <div class="pc-screen-inner">
+            <img class="pc-scene" src={screenImage} alt="" loading="eager" decoding="async" />
+
+            <!-- UI overlay inside the screen -->
+            <div class="pc-ui" aria-hidden="false">
+              <div class="pc-bubble" data-bubble>
+                <span class="pc-bubble-text">Hm..? Play a music?</span>
+              </div>
+
+              <div class="pc-menu" role="menu" aria-label="Screen menu" data-menu>
+                {menu.map((item, idx) => (
+                  <button
+                    class="pc-menu-item"
+                    type="button"
+                    role="menuitem"
+                    data-index={idx}
+                    data-action={item.action}
+                    aria-selected={idx === 0 ? "true" : "false"}
+                  >
+                    <span class="pc-caret" aria-hidden="true">{idx === 0 ? ">" : ""}</span>
+                    <span class="pc-label">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div class="pc-hint" aria-hidden="true">
+                <div>↑↓ Navigate</div>
+                <div>A Select · B Back</div>
+                <div class="pc-ver">v1.0.0</div>
+              </div>
+            </div>
+
+            <!-- CRT Effects (por encima de todo) -->
+            <div class="pc-crt-curve" aria-hidden="true"></div>
+            <div class="pc-scanlines" aria-hidden="true"></div>
+            <div class="pc-noise" aria-hidden="true"></div>
+            <div class="pc-glare" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="pc-body">
+        <!-- D-pad -->
+        <div class="pc-dpad" aria-label="D-pad">
+          <button class="pc-dpad-btn up" type="button" data-dpad="up" aria-label="Up">
+            <span class="pc-dpad-arrow">▲</span>
+          </button>
+          <button class="pc-dpad-btn left" type="button" data-dpad="left" aria-label="Left">
+            <span class="pc-dpad-arrow">◀</span>
+          </button>
+          <button class="pc-dpad-btn mid" type="button" data-dpad="mid" aria-label="Center" tabindex="-1"></button>
+          <button class="pc-dpad-btn right" type="button" data-dpad="right" aria-label="Right">
+            <span class="pc-dpad-arrow">▶</span>
+          </button>
+          <button class="pc-dpad-btn down" type="button" data-dpad="down" aria-label="Down">
+            <span class="pc-dpad-arrow">▼</span>
+          </button>
+        </div>
+
+        <!-- Buttons -->
+        <div class="pc-buttons">
+          <button class="pc-btn pc-btn-b" type="button" data-btn="b" aria-label="B button">
+            <span class="pc-btn-label">B</span>
+          </button>
+          <button class="pc-btn pc-btn-a" type="button" data-btn="a" aria-label="A button">
+            <span class="pc-btn-label">A</span>
+          </button>
+        </div>
+
+        <!-- Start/Select -->
+        <div class="pc-meta">
+          <button class="pc-pill" type="button" data-btn="select" aria-label="Select">
+            <span class="pc-pill-inner">Select</span>
+          </button>
+          <button class="pc-pill" type="button" data-btn="start" aria-label="Start">
+            <span class="pc-pill-inner">Start</span>
+          </button>
+        </div>
+
+        <!-- Screws -->
+        <span class="pc-screw tl" aria-hidden="true"><span class="pc-screw-slot"></span></span>
+        <span class="pc-screw tr" aria-hidden="true"><span class="pc-screw-slot"></span></span>
+        <span class="pc-screw bl" aria-hidden="true"><span class="pc-screw-slot"></span></span>
+        <span class="pc-screw br" aria-hidden="true"><span class="pc-screw-slot"></span></span>
+      </div>
+    </div>
+  </div>
+
+  <audio data-click preload="auto" src={clickSfx}></audio>
+  <audio data-music preload="auto" src={musicSrc}></audio>
+
+  <!-- Modal YouTube -->
+  <dialog class="pc-modal" data-music-modal aria-label="Music video">
+    <div class="pc-modal-card">
+      <button class="pc-modal-close" type="button" data-music-close aria-label="Close">✕</button>
+      <div class="pc-modal-frame">
+        <iframe
+          data-music-iframe
+          title="Music video"
+          frameborder="0"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+  </dialog>
+</section>
+
+<style>
+  /* ========== Layout ========== */
+  .pc-wrap {
+    width: 100%;
+    display: grid;
+    place-items: center;
+    padding: 20px 16px;
+  }
+
+  .pc-stage {
+    width: min(680px, 100%);
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 30px 60px rgba(0,0,0,0.4));
+  }
+
+  /* ---------- Console shell ---------- */
+  .pc-console {
+    width: 100%;
+    border-radius: 20px;
+    background:
+      radial-gradient(circle at 35% 15%, rgba(255,255,255,0.6), rgba(255,255,255,0) 45%),
+      radial-gradient(circle at 75% 70%, rgba(0,0,0,0.25), rgba(0,0,0,0) 55%),
+      linear-gradient(180deg, #e8ecf0, #c8cdd4);
+    border: 2px solid rgba(0,0,0,0.15);
+    box-shadow:
+      0 25px 60px rgba(0,0,0,0.35),
+      0 12px 24px rgba(0,0,0,0.2),
+      inset 0 2px 0 rgba(255,255,255,0.8),
+      inset 0 -2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    position: relative;
+    outline: none;
+  }
+
+  /* Indicador suave de foco (para saber que el teclado ya aplica) */
+  .pc-console:focus {
+    box-shadow:
+      0 25px 60px rgba(0,0,0,0.35),
+      0 12px 24px rgba(0,0,0,0.2),
+      inset 0 2px 0 rgba(255,255,255,0.8),
+      inset 0 -2px 4px rgba(0,0,0,0.1),
+      0 0 0 3px rgba(120, 180, 255, 0.25);
+  }
+
+  .pc-console::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(255,255,255,0.4) 0%,
+      rgba(255,255,255,0) 30%,
+      rgba(0,0,0,0) 70%,
+      rgba(0,0,0,0.1) 100%
+    );
+    pointer-events: none;
+    border-radius: 20px;
+  }
+
+  /* ---------- Screen ---------- */
+  .pc-screen {
+    padding: 18px;
+    padding-bottom: 12px;
+  }
+
+  .pc-screen-bezel {
+    border-radius: 14px;
+    background: linear-gradient(145deg, #1a1d23, #0a0c0f);
+    padding: 5px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.1),
+      inset 0 3px 6px rgba(0,0,0,0.6);
+  }
+
+  .pc-screen-inner {
+    position: relative;
+    border-radius: 12px;
+    background: radial-gradient(ellipse at center, #0f1419 0%, #060809 100%);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow:
+      inset 0 0 0 2px rgba(255,255,255,0.08),
+      inset 0 15px 35px rgba(0,0,0,0.7);
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+  }
+
+  .pc-scene {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: contrast(1.12) saturate(1.15) brightness(0.95);
+    transform: translateZ(0);
+    image-rendering: pixelated;
+  }
+
+  /* Overlay UI */
+  .pc-ui {
+    position: absolute;
+    inset: 0;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: #111;
+    z-index: 20; /* debajo del grano para que el grano se vea encima */
+  }
+
+  .pc-bubble {
+    justify-self: end;
+    max-width: 70%;
+    background: #f0e8c8;
+    border: 3px solid #0a0a0a;
+    border-radius: 10px;
+    padding: 10px 12px;
+    box-shadow:
+      0 6px 0 rgba(0,0,0,0.2),
+      0 3px 10px rgba(0,0,0,0.15);
+    position: relative;
+  }
+
+  .pc-bubble::after {
+    content: "";
+    position: absolute;
+    right: 16px;
+    bottom: -10px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 0px solid transparent;
+    border-top: 10px solid #0a0a0a;
+  }
+
+  .pc-bubble::before {
+    content: "";
+    position: absolute;
+    right: 18px;
+    bottom: -5px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 0px solid transparent;
+    border-top: 8px solid #f0e8c8;
+    z-index: 1;
+  }
+
+  .pc-bubble-text {
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    font-size: clamp(11px, 1.2vw, 13px);
+  }
+
+  .pc-menu {
+    align-self: start;
+    justify-self: end;
+    width: min(320px, 70%);
+    background: #f0e8c8;
+    border: 3px solid #0a0a0a;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow:
+      0 6px 0 rgba(0,0,0,0.2),
+      0 3px 10px rgba(0,0,0,0.15);
+    display: grid;
+    gap: 6px;
+  }
+
+  .pc-menu-item {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    display: grid;
+    grid-template-columns: 16px 1fr;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    font-size: clamp(11px, 1.2vw, 13px);
+    transition: all 0.15s ease;
+  }
+
+  .pc-menu-item:hover {
+    background: rgba(0,0,0,0.08);
+    transform: translateX(2px);
+  }
+
+  .pc-menu-item[data-active="true"] {
+    background: rgba(0,0,0,0.12);
+    transform: translateX(4px);
+  }
+
+  .pc-caret { color: #0b0b0b; font-size: 13px; }
+  .pc-label { text-transform: lowercase; }
+
+  .pc-hint {
+    justify-self: end;
+    align-self: end;
+    color: rgba(255,255,255,0.8);
+    font-size: 10px;
+    line-height: 1.3;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+    user-select: none;
+  }
+
+  .pc-ver { margin-top: 4px; opacity: 0.7; }
+
+  /* ---------- CRT Effects (encima de UI) ---------- */
+  .pc-crt-curve,
+  .pc-scanlines,
+  .pc-noise,
+  .pc-glare {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 30; /* clave: encima del UI */
+  }
+
+  /* Curvatura / viñeta */
+  .pc-crt-curve {
+    inset: -2%;
+    border-radius: 12px;
+    background: radial-gradient(
+      ellipse 100% 100% at 50% 50%,
+      rgba(0,0,0,0) 50%,
+      rgba(0,0,0,0.15) 85%,
+      rgba(0,0,0,0.45) 100%
+    );
+  }
+
+  /* Scanlines */
+  .pc-scanlines {
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0) 0px,
+      rgba(255,255,255,0.03) 1px,
+      rgba(0,0,0,0.06) 2px,
+      rgba(0,0,0,0) 3px
+    );
+    opacity: 0.55;
+    mix-blend-mode: overlay;
+    animation: pc-scanline-move 8s linear infinite;
+  }
+
+  @keyframes pc-scanline-move {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(4px); }
+  }
+
+  /* Granulado (más visible) + fallback */
+  .pc-noise {
+    /* Más visible */
+    opacity: 0.58;
+    mix-blend-mode: overlay;
+    filter: contrast(1.25);
+
+    /* Ruido SVG + fallback radial */
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.85'/%3E%3C/svg%3E"),
+      radial-gradient(circle at 30% 20%, rgba(255,255,255,0.08), rgba(255,255,255,0) 40%),
+      radial-gradient(circle at 70% 60%, rgba(0,0,0,0.12), rgba(0,0,0,0) 45%);
+    background-size: 180px 180px, 100% 100%, 100% 100%;
+    animation: pc-grain-anim 0.90s steps(6) infinite;
+  }
+
+  @keyframes pc-grain-anim {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-4%, -6%); }
+    20% { transform: translate(-8%, 4%); }
+    30% { transform: translate(5%, -8%); }
+    40% { transform: translate(-5%, 10%); }
+    50% { transform: translate(-10%, 6%); }
+    60% { transform: translate(10%, 0%); }
+    70% { transform: translate(0%, 10%); }
+    80% { transform: translate(-12%, 0%); }
+    90% { transform: translate(8%, 5%); }
+  }
+
+  /* Glare */
+  .pc-glare {
+    inset: -15%;
+    background: linear-gradient(
+      125deg,
+      rgba(255,255,255,0) 25%,
+      rgba(255,255,255,0.08) 40%,
+      rgba(255,255,255,0.16) 48%,
+      rgba(255,255,255,0.08) 56%,
+      rgba(255,255,255,0) 70%
+    );
+    transform: rotate(-8deg);
+    mix-blend-mode: screen;
+    opacity: 0.9;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pc-noise { animation: none; }      /* deja el grano estático, pero visible */
+    .pc-scanlines { animation: none; }  /* scanlines estáticas */
+  }
+
+  /* ---------- Body controls ---------- */
+  .pc-body {
+    position: relative;
+    padding: 16px 20px 24px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 16px;
+    min-height: 200px;
+  }
+
+  /* D-pad */
+  .pc-dpad {
+    justify-self: start;
+    position: relative;
+    width: 130px;
+    height: 130px;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+  }
+
+  .pc-dpad-btn {
+    position: absolute;
+    border: none;
+    background: linear-gradient(145deg, #3a3f47, #2d3139);
+    box-shadow:
+      0 5px 0 #1a1d23,
+      0 10px 16px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.2),
+      inset 0 -1px 2px rgba(0,0,0,0.4);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    display: grid;
+    place-items: center;
+    color: #c0c5cc;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .pc-dpad-btn:hover { background: linear-gradient(145deg, #42474f, #353a42); }
+
+  .pc-dpad-btn:active,
+  .pc-dpad-btn[data-pressed="true"] {
+    transform: translateY(3px);
+    box-shadow:
+      0 2px 0 #1a1d23,
+      0 5px 10px rgba(0,0,0,0.3),
+      inset 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  .pc-dpad-arrow { text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+  .pc-dpad-btn.up    { left: 50%; top: 6px;   width: 48px; height: 48px; transform: translateX(-50%); }
+  .pc-dpad-btn.down  { left: 50%; bottom: 6px; width: 48px; height: 48px; transform: translateX(-50%); }
+  .pc-dpad-btn.left  { top: 50%; left: 6px;    width: 48px; height: 48px; transform: translateY(-50%); }
+  .pc-dpad-btn.right { top: 50%; right: 6px;   width: 48px; height: 48px; transform: translateY(-50%); }
+
+  .pc-dpad-btn.mid {
+    left: 50%;
+    top: 50%;
+    width: 52px;
+    height: 52px;
+    transform: translate(-50%, -50%);
+    cursor: default;
+    background: linear-gradient(145deg, #2d3139, #23262d);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.6);
+  }
+
+  .pc-dpad-btn.up:active { transform: translateX(-50%) translateY(3px); }
+  .pc-dpad-btn.down:active { transform: translateX(-50%) translateY(3px); }
+  .pc-dpad-btn.left:active { transform: translateY(-50%) translateY(3px); }
+  .pc-dpad-btn.right:active { transform: translateY(-50%) translateY(3px); }
+
+  /* A/B Buttons */
+  .pc-buttons {
+    justify-self: end;
+    display: grid;
+    grid-auto-flow: column;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .pc-btn {
+    width: 54px;
+    height: 54px;
+    border-radius: 999px;
+    border: none;
+    box-shadow:
+      0 5px 0 #a03248,
+      0 10px 20px rgba(0,0,0,0.35),
+      inset 0 2px 3px rgba(255,255,255,0.4),
+      inset 0 -2px 3px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: all 0.1s ease;
+    display: grid;
+    place-items: center;
+  }
+
+  .pc-btn-a {
+    background: radial-gradient(circle at 30% 25%, #e85d75, #d14562);
+  }
+
+  .pc-btn-b {
+    background: radial-gradient(circle at 30% 25%, #f4d35e, #e8b632);
+    box-shadow:
+      0 5px 0 #b8932a,
+      0 10px 20px rgba(0,0,0,0.35),
+      inset 0 2px 3px rgba(255,255,255,0.4),
+      inset 0 -2px 3px rgba(0,0,0,0.3);
+  }
+
+  .pc-btn-label {
+    font-weight: 900;
+    font-size: 17px;
+    color: #fff;
+    text-shadow: 0 2px 3px rgba(0,0,0,0.4);
+  }
+
+  .pc-btn:hover { transform: translateY(-2px); }
+
+  .pc-btn:active,
+  .pc-btn[data-pressed="true"] {
+    transform: translateY(3px);
+    box-shadow:
+      0 2px 0 #a03248,
+      0 5px 10px rgba(0,0,0,0.3),
+      inset 0 2px 5px rgba(0,0,0,0.4);
+  }
+
+  .pc-btn-b:active,
+  .pc-btn-b[data-pressed="true"] {
+    box-shadow:
+      0 2px 0 #b8932a,
+      0 5px 10px rgba(0,0,0,0.3),
+      inset 0 2px 5px rgba(0,0,0,0.4);
+  }
+
+  /* Start/Select */
+  .pc-meta {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .pc-pill {
+    border-radius: 999px;
+    padding: 0;
+    border: none;
+    background: linear-gradient(145deg, #3a3f47, #2d3139);
+    box-shadow:
+      0 3px 0 #1a1d23,
+      0 6px 12px rgba(0,0,0,0.25),
+      inset 0 1px 0 rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: all 0.1s ease;
+    overflow: hidden;
+  }
+
+  .pc-pill-inner {
+    display: block;
+    padding: 9px 14px;
+    font-weight: 800;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #c0c5cc;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+
+  .pc-pill:hover { transform: translateY(-1px); }
+
+  .pc-pill:active,
+  .pc-pill[data-pressed="true"] {
+    transform: translateY(2px);
+    box-shadow:
+      0 1px 0 #1a1d23,
+      0 3px 6px rgba(0,0,0,0.2),
+      inset 0 2px 4px rgba(0,0,0,0.4);
+  }
+
+  /* Screws */
+  .pc-screw {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: radial-gradient(circle at 35% 35%, #f0f2f5, #c8cdd4);
+    border: 1px solid rgba(0,0,0,0.25);
+    box-shadow:
+      inset 0 1px 2px rgba(255,255,255,0.8),
+      inset 0 -1px 2px rgba(0,0,0,0.2),
+      0 2px 3px rgba(0,0,0,0.2);
+    display: grid;
+    place-items: center;
+  }
+
+  .pc-screw-slot {
+    width: 10px;
+    height: 2px;
+    background: linear-gradient(180deg, #90959c, #b0b5bc);
+    box-shadow:
+      inset 0 1px 1px rgba(0,0,0,0.4),
+      0 1px 0 rgba(255,255,255,0.3);
+  }
+
+  .pc-screw.tl { left: 12px; top: 10px; }
+  .pc-screw.tr { right: 12px; top: 10px; }
+  .pc-screw.bl { left: 12px; bottom: 10px; }
+  .pc-screw.br { right: 12px; bottom: 10px; }
+
+  /* Screen shake feedback */
+  .pc-console.pc-shake {
+    animation: pc-shake 200ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+
+  @keyframes pc-shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+    20%, 40%, 60%, 80% { transform: translateX(3px); }
+  }
+
+  /* ---------- Modal YouTube ---------- */
+  .pc-modal { border: none; padding: 0; background: transparent; }
+
+  .pc-modal::backdrop {
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: none;
+  }
+
+  .pc-modal-card {
+    width: min(920px, 92vw);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,255,255,0.14);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pc-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(0,0,0,0.35);
+    color: rgba(255,255,255,0.9);
+    cursor: pointer;
+    font-weight: 900;
+    z-index: 2;
+  }
+
+  .pc-modal-frame {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+  }
+
+  .pc-modal-frame iframe {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .pc-stage { width: min(520px, 100%); }
+
+    .pc-body {
+      grid-template-columns: 1fr;
+      gap: 20px;
+      padding: 14px 18px 20px;
+      min-height: 180px;
+    }
+
+    .pc-dpad { width: 110px; height: 110px; }
+
+    .pc-dpad-btn.up,
+    .pc-dpad-btn.down,
+    .pc-dpad-btn.left,
+    .pc-dpad-btn.right { width: 40px; height: 40px; }
+
+    .pc-dpad-btn.mid { width: 44px; height: 44px; }
+    .pc-btn { width: 48px; height: 48px; }
+
+    .pc-dpad,
+    .pc-buttons { justify-self: center; }
+    .pc-meta { margin-top: 6px; }
+  }
+  /* ============================================
+   VIDEO DENTRO DE LA PANTALLA (CSS ONLY)
+   - El dialog se dimensiona como la pantalla 16:9
+   - Se centra sobre la consola (que está centrada)
+   - Se aplica “CRT overlay” encima del iframe
+   ============================================ */
+
+/* Oculta UI e imagen de fondo mientras el video está abierto */
+.pc-wrap:has(.pc-modal[open]) .pc-ui {
+  opacity: 0;
+  pointer-events: none;
+}
+.pc-wrap:has(.pc-modal[open]) .pc-scene {
+  opacity: 0;
+}
+
+/* Dialog: deja de verse como modal de página y pasa a “overlay de pantalla” */
+.pc-modal {
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* Backdrop: no oscurece toda la página (opcional) */
+.pc-modal::backdrop {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+/* Cuando está abierto, lo forzamos a tamaño de pantalla 16:9
+   y lo centramos (coincide con la consola porque tu consola está centrada). */
+.pc-modal[open] {
+  /* En top-layer igual se puede posicionar */
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  /* Ancho aproximado al “screen-inner”: stage(680) - 2*(18+5)= 634 */
+  width: min(calc(680px - 46px), calc(100vw - 78px));
+  aspect-ratio: 16 / 9;
+
+  /* Quita estilos default del dialog */
+  margin: 0;
+  max-width: 92vw;
+  max-height: 70vh;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* La “tarjeta” ahora es literalmente la pantalla */
+.pc-modal-card {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+
+  /* look de pantalla */
+  background: radial-gradient(ellipse at center, #0f1419 0%, #060809 100%);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,0.08),
+    inset 0 15px 35px rgba(0,0,0,0.7),
+    0 18px 50px rgba(0,0,0,0.55);
+
+  position: relative;
+  overflow: hidden;
+}
+
+/* El frame ocupa todo el área (sin aspect-ratio propio) */
+.pc-modal-frame {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  background: #000;
+}
+
+/* Iframe full */
+.pc-modal-frame iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+}
+
+/* Botón cerrar “dentro de la pantalla” */
+.pc-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(0,0,0,0.35);
+  color: rgba(255,255,255,0.92);
+  cursor: pointer;
+  font-weight: 900;
+  z-index: 50;
+}
+
+/* ====== CRT overlay encima del video (scanlines + grain) ====== */
+
+/* Scanlines */
+.pc-modal-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0) 0px,
+    rgba(255,255,255,0.03) 1px,
+    rgba(0,0,0,0.06) 2px,
+    rgba(0,0,0,0) 3px
+  );
+  opacity: 0.55;
+  mix-blend-mode: overlay;
+  animation: pc-scanline-move 8s linear infinite;
+}
+
+/* Grain */
+.pc-modal-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 45;
+
+  opacity: 0.30;
+  mix-blend-mode: soft-light;
+  filter: contrast(1.25);
+
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.85'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  animation: pc-grain-anim 0.90s steps(6) infinite;
+}
+
+/* Respeta reduce-motion */
+@media (prefers-reduced-motion: reduce) {
+  .pc-modal-card::before,
+  .pc-modal-card::after {
+    animation: none;
+  }
+}
+/* =========================================================
+   MOBILE GAMEPAD FIX + NOISE BOOST (OVERRIDES)
+   Pegar al FINAL del <style>
+   ========================================================= */
+
+/* ---------- Noise/Grain más fuerte (pantalla normal) ---------- */
+.pc-noise{
+  /* más visible */
+  opacity: 0.78;
+  mix-blend-mode: soft-light; /* suele verse más que overlay en móviles */
+  filter: contrast(2.1) brightness(1.18);
+
+  /* 2 capas de ruido (más “denso”) + highlights/shadows */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='.95'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='n2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.45' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23n2)' opacity='.55'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.11), rgba(255,255,255,0) 42%),
+    radial-gradient(circle at 70% 65%, rgba(0,0,0,0.22), rgba(0,0,0,0) 52%);
+
+  background-size: 120px 120px, 220px 220px, 100% 100%, 100% 100%;
+  animation: pc-grain-anim 0.55s steps(8) infinite;
+}
+
+/* ---------- Noise/Grain más fuerte (video modal) ---------- */
+.pc-modal-card::after{
+  opacity: 0.55;                /* antes 0.30 */
+  mix-blend-mode: soft-light;
+  filter: contrast(2.0) brightness(1.15);
+
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='.95'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='n2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.45' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23n2)' opacity='.55'/%3E%3C/svg%3E");
+
+  background-size: 120px 120px, 220px 220px;
+  animation: pc-grain-anim 0.55s steps(8) infinite;
+}
+
+/* ---------- Mejor respuesta táctil en móvil ---------- */
+.pc-dpad-btn,
+.pc-btn,
+.pc-pill,
+.pc-menu-item{
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* =========================================================
+   RESPONSIVE GAMEPAD (evita que se “dañe” en celular)
+   - En vez de 1 columna, usamos 2 columnas: D-pad | A/B
+   - Start/Select queda abajo centrado
+   ========================================================= */
+@media (max-width: 768px) {
+  .pc-wrap { padding: 14px 12px; }
+  .pc-stage { width: min(560px, 100%); }
+
+  .pc-body{
+    /* layout compacto y claro */
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "dpad buttons"
+      "meta meta";
+    justify-items: center;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px 16px;
+    min-height: unset;
+  }
+
+  .pc-dpad{
+    grid-area: dpad;
+    justify-self: center;
+    width: 108px;
+    height: 108px;
+  }
+
+  .pc-buttons{
+    grid-area: buttons;
+    justify-self: center;
+    gap: 10px;
+  }
+
+  .pc-meta{
+    grid-area: meta;
+    margin-top: 4px;
+    gap: 10px;
+  }
+
+  /* Ajuste tamaños botones */
+  .pc-btn { width: 46px; height: 46px; }
+  .pc-btn-label { font-size: 15px; }
+
+  /* D-pad botones */
+  .pc-dpad-btn.up,
+  .pc-dpad-btn.down,
+  .pc-dpad-btn.left,
+  .pc-dpad-btn.right { width: 38px; height: 38px; }
+
+  .pc-dpad-btn.mid { width: 44px; height: 44px; }
+
+  /* Reduce UI overlay dentro de pantalla para no tapar tanto */
+  .pc-ui { padding: 10px; gap: 8px; }
+  .pc-menu { width: min(280px, 82%); }
+  .pc-bubble { max-width: 82%; }
+}
+
+/* Extra compacto (teléfonos pequeños) */
+@media (max-width: 480px) {
+  .pc-stage { width: 100%; }
+  .pc-screen { padding: 14px; padding-bottom: 10px; }
+
+  .pc-body{
+    gap: 12px;
+    padding: 10px 12px 14px;
+  }
+
+  .pc-dpad{ width: 94px; height: 94px; }
+
+  .pc-dpad-btn.up,
+  .pc-dpad-btn.down,
+  .pc-dpad-btn.left,
+  .pc-dpad-btn.right { width: 34px; height: 34px; }
+
+  .pc-dpad-btn.mid { width: 40px; height: 40px; }
+
+  .pc-btn{ width: 42px; height: 42px; }
+  .pc-btn-label{ font-size: 14px; }
+
+  .pc-pill-inner{
+    padding: 7px 11px;
+    font-size: 9px;
+  }
+
+  /* Noise aún más notorio en pantallas pequeñas */
+  .pc-noise{ opacity: 0.86; background-size: 95px 95px, 180px 180px, 100% 100%, 100% 100%; }
+  .pc-modal-card::after{ opacity: 0.62; background-size: 95px 95px, 180px 180px; }
+}
+
+
+/* === HOTFIX CRT GRAIN NO BOUNCE START === */
+/* Estabiliza el granulado Atari/CRT para evitar rebote al final del scroll. */
+.pc-screen-inner,
+.pc-modal-card,
+.project-card,
+.repo-card,
+[class*="screen"],
+[class*="console"] {
+  overflow: hidden !important;
+  contain: paint;
+}
+
+.pc-noise,
+.crt-noise,
+.noise,
+.grain,
+.pc-modal-card::after,
+.project-card::after,
+.repo-card::after,
+[class*="noise"]::after,
+[class*="grain"]::after {
+  inset: -2px !important;
+  transform: translate3d(0, 0, 0) !important;
+  animation: crt-grain-soft-fixed 3.5s steps(2, end) infinite !important;
+  opacity: 0.22 !important;
+  mix-blend-mode: soft-light !important;
+  will-change: opacity, background-position !important;
+  backface-visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.pc-scanlines,
+.crt-scanlines,
+.scanlines,
+.pc-modal-card::before,
+.project-card::before,
+.repo-card::before,
+[class*="scanline"]::before {
+  transform: translate3d(0, 0, 0) !important;
+  animation: crt-scanline-soft-fixed 14s linear infinite !important;
+  opacity: 0.24 !important;
+  will-change: background-position !important;
+  pointer-events: none !important;
+}
+
+@keyframes crt-grain-soft-fixed {
+  0% {
+    background-position: 0 0, 12px 8px, 0 0;
+    opacity: 0.18;
+  }
+  50% {
+    background-position: 1px -1px, 11px 9px, 0 0;
+    opacity: 0.24;
+  }
+  100% {
+    background-position: 0 0, 12px 8px, 0 0;
+    opacity: 0.18;
+  }
+}
+
+@keyframes crt-scanline-soft-fixed {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 4px; }
+}
+
+@media (max-width: 768px) {
+  .pc-noise,
+  .crt-noise,
+  .noise,
+  .grain,
+  .pc-modal-card::after,
+  .project-card::after,
+  .repo-card::after {
+    opacity: 0.14 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .pc-scanlines,
+  .crt-scanlines,
+  .scanlines,
+  .pc-modal-card::before,
+  .project-card::before,
+  .repo-card::before {
+    opacity: 0.18 !important;
+    animation: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-noise,
+  .crt-noise,
+  .noise,
+  .grain,
+  .pc-scanlines,
+  .crt-scanlines,
+  .scanlines,
+  .pc-modal-card::before,
+  .pc-modal-card::after,
+  .project-card::before,
+  .project-card::after,
+  .repo-card::before,
+  .repo-card::after {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+/* === HOTFIX CRT GRAIN NO BOUNCE END === */
+</style>
+
+<!-- Reemplaza el <script is:inline> con este <script> normal -->
+
+<script define:vars={{ backHash, musicVideoId, clickSfx, musicSrc }}>
+  const initPixelConsoles = () => {
+    console.log("🎮 [PixelConsole] Init started");
+    
+    const consoles = Array.from(document.querySelectorAll("[data-console]"));
+    console.log("🎮 [PixelConsole] Found consoles:", consoles.length);
+    
+    if (!consoles.length) {
+      console.warn("❌ [PixelConsole] No consoles found!");
+      return;
+    }
+
+    consoles.forEach((root, consoleIndex) => {
+      console.log(`🎮 [Console ${consoleIndex}] Initializing...`);
+      
+      // Evitar doble init
+      if (root.dataset.pcInit === "true") {
+        console.log(`⚠️ [Console ${consoleIndex}] Already initialized, skipping`);
+        return;
+      }
+      root.dataset.pcInit = "true";
+
+      // Variables desde Astro props
+      const videoId = musicVideoId;
+      const hashBack = backHash;
+      
+      console.log(`📋 [Console ${consoleIndex}] Config:`, { hashBack, videoId });
+
+      // Query selectors más robustos
+      const wrap = root.closest(".pc-wrap");
+      console.log(`🔍 [Console ${consoleIndex}] Wrap found:`, !!wrap);
+
+      const items = Array.from(root.querySelectorAll(".pc-menu-item"));
+      const bubble = root.querySelector("[data-bubble] .pc-bubble-text");
+      const click = (wrap || document).querySelector("audio[data-click]");
+      const music = (wrap || document).querySelector("audio[data-music]");
+      const modal = (wrap || document).querySelector("[data-music-modal]");
+      const modalClose = (wrap || document).querySelector("[data-music-close]");
+      const iframe = (wrap || document).querySelector("[data-music-iframe]");
+
+      console.log(`🔍 [Console ${consoleIndex}] Elements:`, {
+        items: items.length,
+        bubble: !!bubble,
+        click: !!click,
+        music: !!music,
+        modal: !!modal,
+        modalClose: !!modalClose,
+        iframe: !!iframe
+      });
+
+      let index = 0;
+      let musicOn = false;
+      let armed = false;
+
+      // ========== FUNCIONES ==========
+      
+      const playClick = () => {
+        console.log("🔊 [Sound] Playing click");
+        if (!click) {
+          console.warn("⚠️ [Sound] Click audio not found!");
+          return;
+        }
+        try {
+          click.currentTime = 0;
+          click.play().catch(e => console.error("❌ [Sound] Play failed:", e));
+        } catch (e) {
+          console.error("❌ [Sound] Error:", e);
+        }
+      };
+
+      const shake = () => {
+        console.log("📳 [FX] Shake effect");
+        root.classList.add("pc-shake");
+        setTimeout(() => root.classList.remove("pc-shake"), 220);
+      };
+
+      const setActive = (i) => {
+        if (!items.length) {
+          console.warn("⚠️ [Menu] No items found!");
+          return;
+        }
+        
+        index = (i + items.length) % items.length;
+        console.log(`📍 [Menu] Active index: ${index}`);
+
+        items.forEach((btn, idx) => {
+          const active = idx === index;
+          btn.dataset.active = active ? "true" : "false";
+          btn.setAttribute("aria-selected", active ? "true" : "false");
+          const caret = btn.querySelector(".pc-caret");
+          if (caret) caret.textContent = active ? ">" : "";
+        });
+
+        const label = items[index]?.querySelector(".pc-label")?.textContent?.trim() ?? "";
+        console.log(`🏷️ [Menu] Selected: "${label}"`);
+        if (bubble) bubble.textContent = `Select: ${label}`;
+      };
+
+      const pressFX = (el) => {
+        if (!el) return;
+        console.log("🎯 [FX] Button press effect");
+        el.dataset.pressed = "true";
+        setTimeout(() => { delete el.dataset.pressed; }, 150);
+      };
+
+      const openVideo = () => {
+        console.log("🎬 [Video] Opening modal");
+        if (!modal || !iframe) {
+          console.warn("⚠️ [Video] Modal or iframe not found!");
+          return;
+        }
+        iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
+        if (typeof modal.showModal === "function") {
+          modal.showModal();
+        } else {
+          modal.setAttribute("open", "true");
+        }
+        if (bubble) bubble.textContent = "Playing video...";
+      };
+
+      const closeVideo = () => {
+        console.log("⏹️ [Video] Closing modal");
+        if (!modal || !iframe) return;
+        iframe.src = "";
+        if (typeof modal.close === "function") {
+          modal.close();
+        } else {
+          modal.removeAttribute("open");
+        }
+        if (bubble) bubble.textContent = "Video closed";
+      };
+
+      const doScrollHash = (hash) => {
+        console.log(`📜 [Navigation] Scrolling to: ${hash}`);
+        const target = document.querySelector(hash);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          console.warn(`⚠️ [Navigation] Target not found: ${hash}`);
+        }
+        history.replaceState(null, "", hash);
+      };
+
+      const activate = () => {
+        console.log("✅ [Action] Activate triggered");
+        const btn = items[index];
+        if (!btn) {
+          console.warn("⚠️ [Action] No button at current index!");
+          return;
+        }
+
+        playClick();
+        shake();
+
+        const aBtn = root.querySelector('[data-btn="a"]');
+        if (aBtn) pressFX(aBtn);
+
+        const action = btn.dataset.action || "";
+        console.log(`🎯 [Action] Executing: "${action}"`);
+
+        window.dispatchEvent(new CustomEvent("pixelconsole:select", {
+          detail: { index, label: btn.textContent.trim(), action }
+        }));
+
+        if (action.startsWith("#")) {
+          doScrollHash(action);
+          return;
+        }
+
+        if (action === "music:video") {
+          openVideo();
+          return;
+        }
+
+        if (action === "music:toggle") {
+          if (!music) {
+            console.warn("⚠️ [Music] Audio element not found!");
+            return;
+          }
+          try {
+            if (!musicOn) {
+              music.volume = 0.6;
+              music.loop = true;
+              music.play().catch(e => console.error("❌ [Music] Play failed:", e));
+              musicOn = true;
+              if (bubble) bubble.textContent = "Music: ON";
+              console.log("🎵 [Music] Started");
+            } else {
+              music.pause();
+              musicOn = false;
+              if (bubble) bubble.textContent = "Music: OFF";
+              console.log("⏸️ [Music] Paused");
+            }
+          } catch (e) {
+            console.error("❌ [Music] Error:", e);
+          }
+          return;
+        }
+
+        if (action.startsWith("/")) {
+          console.log(`🔗 [Link] Opening: ${action}`);
+          window.open(action, "_blank", "noopener,noreferrer");
+          return;
+        }
+      };
+
+      const back = () => {
+        console.log("⬅️ [Action] Back triggered");
+        
+        if (modal && modal.open) {
+          playClick();
+          closeVideo();
+          return;
+        }
+
+        playClick();
+        shake();
+
+        const bBtn = root.querySelector('[data-btn="b"]');
+        if (bBtn) pressFX(bBtn);
+
+        window.dispatchEvent(new CustomEvent("pixelconsole:back"));
+        if (hashBack && hashBack.startsWith("#")) doScrollHash(hashBack);
+      };
+
+      const move = (dir) => {
+        console.log(`🎮 [Move] Direction: ${dir}`);
+        playClick();
+        if (dir === "up" || dir === "left") setActive(index - 1);
+        if (dir === "down" || dir === "right") setActive(index + 1);
+      };
+
+      // ========== ARMADO DE TECLADO ==========
+      
+      const arm = () => {
+        if (!armed) {
+          console.log("🔓 [Keyboard] Armed!");
+          armed = true;
+        }
+        try { 
+          root.focus({ preventScroll: true }); 
+        } catch { 
+          root.focus(); 
+        }
+      };
+
+      const disarmIfOutside = (e) => {
+        if (!root.contains(e.target) && armed) {
+          console.log("🔒 [Keyboard] Disarmed");
+          armed = false;
+        }
+      };
+
+      root.addEventListener("pointerdown", () => {
+        console.log("👆 [Event] Console clicked");
+        arm();
+      });
+      
+      root.addEventListener("focusin", () => {
+        console.log("🎯 [Event] Console focused");
+        arm();
+      });
+      
+      document.addEventListener("pointerdown", disarmIfOutside);
+
+      // ========== CLICK EN MENÚ ==========
+      
+      items.forEach((btn, btnIndex) => {
+        btn.addEventListener("click", (e) => {
+          console.log(`🖱️ [Menu Item ${btnIndex}] Clicked`);
+          arm();
+          const i = Number(btn.dataset.index || "0");
+          setActive(i);
+          activate();
+        });
+      });
+
+      // ========== D-PAD ==========
+      
+      const dpadButtons = root.querySelectorAll("[data-dpad]");
+      console.log(`🕹️ [D-pad] Found ${dpadButtons.length} buttons`);
+      
+      dpadButtons.forEach((b) => {
+        const dir = b.getAttribute("data-dpad");
+        b.addEventListener("click", () => {
+          console.log(`🕹️ [D-pad] ${dir} clicked`);
+          arm();
+          pressFX(b);
+          if (dir === "mid") return;
+          move(dir);
+        });
+      });
+
+      // ========== BOTONES A/B/START/SELECT ==========
+      
+      const controlButtons = root.querySelectorAll("[data-btn]");
+      console.log(`🎮 [Buttons] Found ${controlButtons.length} control buttons`);
+      
+      controlButtons.forEach((b) => {
+        const key = b.getAttribute("data-btn");
+        b.addEventListener("click", () => {
+          console.log(`🎮 [Button] ${key.toUpperCase()} clicked`);
+          arm();
+          pressFX(b);
+          if (key === "a" || key === "start") activate();
+          if (key === "b" || key === "select") back();
+        });
+      });
+
+      // ========== MODAL ==========
+      
+      if (modalClose) {
+        modalClose.addEventListener("click", () => {
+          console.log("❌ [Modal] Close button clicked");
+          closeVideo();
+        });
+      }
+      
+      if (modal) {
+        modal.addEventListener("close", () => {
+          console.log("🔒 [Modal] Closed event");
+          if (iframe) iframe.src = "";
+        });
+        
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) {
+            console.log("🖱️ [Modal] Backdrop clicked");
+            closeVideo();
+          }
+        });
+      }
+
+      // ========== TECLADO ==========
+      
+      window.addEventListener("keydown", (e) => {
+        // ESC siempre cierra video
+        if (modal && modal.open && e.key === "Escape") {
+          console.log("⌨️ [Keyboard] ESC - closing video");
+          e.preventDefault();
+          closeVideo();
+          return;
+        }
+
+        if (!armed) {
+          return;
+        }
+
+        const k = e.key;
+        console.log(`⌨️ [Keyboard] Key: ${k}`);
+        
+        if (k === "ArrowUp")    { e.preventDefault(); move("up"); return; }
+        if (k === "ArrowDown")  { e.preventDefault(); move("down"); return; }
+        if (k === "ArrowLeft")  { e.preventDefault(); move("left"); return; }
+        if (k === "ArrowRight") { e.preventDefault(); move("right"); return; }
+        if (k === "Enter")      { e.preventDefault(); activate(); return; }
+        if (k === "Escape" || k === "Backspace") { e.preventDefault(); back(); return; }
+      }, { passive: false });
+
+      // ========== ESTADO INICIAL ==========
+      
+      console.log(`✅ [Console ${consoleIndex}] Initialized successfully`);
+      setActive(0);
+    });
+    
+    console.log("🎮 [PixelConsole] All consoles initialized");
+  };
+
+  // ========== INICIALIZACIÓN ==========
+  
+  if (document.readyState === "loading") {
+    console.log("⏳ [Init] Waiting for DOMContentLoaded...");
+    document.addEventListener("DOMContentLoaded", initPixelConsoles);
+  } else {
+    console.log("✅ [Init] DOM already loaded, initializing now");
+    initPixelConsoles();
+  }
+  
+  document.addEventListener("astro:page-load", () => {
+    console.log("🔄 [Astro] Page load event");
+    initPixelConsoles();
+  });
+</script>

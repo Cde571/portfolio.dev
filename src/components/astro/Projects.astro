@@ -1,0 +1,471 @@
+﻿---
+import { projects, type Project } from '../../data/projects';
+import ProjectCard from './ProjectCard.astro';
+
+const githubReposUrl = 'https://github.com/Cde571?tab=repositories';
+
+const featuredTitles = [
+  'Portfolio Dev',
+  'Sistema Solar 3D',
+  'Scroll Effects',
+  'Food Emotions',
+  'Foodemotions Back',
+  'Bankapp',
+  'Bank Frontend',
+  'World Cup 2026 Frontend',
+  'API Backend World Cup',
+  'Jarvis Os',
+];
+
+const byTitle = new Map(projects.map((project) => [project.title, project]));
+const featuredProjects = featuredTitles
+  .map((title) => byTitle.get(title))
+  .filter((project): project is Project => Boolean(project));
+
+const fallbackFeatured = projects.filter((project) => !featuredProjects.includes(project)).slice(0, Math.max(0, 10 - featuredProjects.length));
+const showcaseProjects = [...featuredProjects, ...fallbackFeatured].slice(0, 10);
+const archiveProjects = projects;
+const languages = Array.from(new Set(archiveProjects.map((project) => project.language).filter(Boolean))).sort();
+const repoLink = (project: Project) => project.links.find((link) => link.type === 'repo') ?? project.links[0];
+const compactText = (project: Project) => [project.title, project.language, project.category, project.description, ...project.tags].filter(Boolean).join(' ');
+---
+
+<section class="projects-section" id="projects" aria-label="Projects">
+  <div class="section-header-row showcase-header" data-reveal>
+    <div>
+      <span class="showcase-kicker">SELECTED WORK / CDE571</span>
+      <h2 class="section-title">PROYECTOS DESTACADOS</h2>
+      <p class="projects-subtitle">
+        Selección curada de {showcaseProjects.length} proyectos fuertes. El resto queda en archivo compacto y en GitHub.
+      </p>
+    </div>
+    <a class="section-link section-link-primary" href={githubReposUrl} target="_blank" rel="noreferrer">
+      Ver los {archiveProjects.length} repositorios <i data-feather="external-link" aria-hidden="true"></i>
+    </a>
+  </div>
+
+  <div class="showcase-strip" data-reveal aria-label="Resumen de organización de proyectos">
+    <div>
+      <strong>{showcaseProjects.length}</strong>
+      <span>destacados visibles</span>
+    </div>
+    <div>
+      <strong>{archiveProjects.length}</strong>
+      <span>repositorios en archivo</span>
+    </div>
+    <div>
+      <strong>{languages.length}</strong>
+      <span>tecnologías detectadas</span>
+    </div>
+  </div>
+
+  <div class="projects-grid featured-projects-grid" id="featuredProjectsGrid" data-showcase-grid>
+    {showcaseProjects.map((project) => <ProjectCard project={project} />)}
+  </div>
+
+  <div class="repo-all-cta" data-reveal>
+    <div>
+      <span>¿Quieres revisar todo el código?</span>
+      <strong>Explora el inventario completo sin saturar la página principal.</strong>
+    </div>
+    <div class="repo-all-actions">
+      <a href={githubReposUrl} target="_blank" rel="noreferrer" class="project-link repo-all-link">
+        GitHub completo <i data-feather="github" aria-hidden="true"></i>
+      </a>
+      <a href="#repoArchive" class="project-link repo-all-link repo-all-secondary">
+        Archivo local <i data-feather="archive" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <details class="repo-archive-panel" id="repoArchive" data-reveal>
+    <summary>
+      <span>
+        <strong>ARCHIVO COMPLETO</strong>
+        <small>{archiveProjects.length} repositorios en formato compacto</small>
+      </span>
+      <i data-feather="chevron-down" aria-hidden="true"></i>
+    </summary>
+
+    <div class="repo-archive-body">
+      <div class="projects-toolbar archive-toolbar">
+        <label class="project-search archive-search">
+          <i data-feather="search" aria-hidden="true"></i>
+          <input id="repoArchiveSearch" type="search" placeholder="Buscar en los 54 repos..." autocomplete="off" />
+        </label>
+        <div class="project-filter-row" aria-label="Filtros por lenguaje del archivo">
+          <button class="archive-filter is-active" type="button" data-archive-filter="all">Todos</button>
+          {languages.map((language) => (
+            <button class="archive-filter" type="button" data-archive-filter={language}>{language}</button>
+          ))}
+        </div>
+      </div>
+
+      <p class="project-result-count archive-result-count" id="repoArchiveResultCount">{archiveProjects.length} repositorios en archivo</p>
+
+      <div class="repo-archive-grid" id="repoArchiveGrid">
+        {archiveProjects.map((project, index) => {
+          const link = repoLink(project);
+          return (
+            <a
+              class="repo-archive-card"
+              href={link?.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-repo-archive-card
+              data-archive-search={compactText(project)}
+              data-archive-language={project.language ?? ''}
+              aria-label={`Abrir ${project.title} en GitHub`}
+            >
+              <span class="archive-index">#{String(index + 1).padStart(2, '0')}</span>
+              {project.image ? (
+                <img class="archive-thumb" src={project.image} alt={`Miniatura de ${project.title}`} loading="lazy" decoding="async" />
+              ) : null}
+              <span class="archive-main">
+                <strong>{project.title}</strong>
+                <small>{project.language ?? 'Repo'}{project.category ? ` · ${project.category}` : ''}</small>
+              </span>
+              <i data-feather="external-link" aria-hidden="true"></i>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </details>
+</section>
+
+<script is:inline>
+  (() => {
+    const archive = document.getElementById('repoArchive');
+    const search = document.getElementById('repoArchiveSearch');
+    const cards = Array.from(document.querySelectorAll('[data-repo-archive-card]'));
+    const filters = Array.from(document.querySelectorAll('[data-archive-filter]'));
+    const count = document.getElementById('repoArchiveResultCount');
+    if (!archive || !cards.length) return;
+
+    let active = 'all';
+    const normalize = (value) => (value || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    function applyArchiveFilter() {
+      const q = normalize(search && search.value);
+      let visible = 0;
+      cards.forEach((card) => {
+        const haystack = normalize(card.dataset.archiveSearch || card.textContent);
+        const lang = normalize(card.dataset.archiveLanguage || '');
+        const show = (!q || haystack.includes(q)) && (active === 'all' || lang === normalize(active));
+        card.hidden = !show;
+        card.classList.toggle('is-archive-hidden', !show);
+        if (show) visible += 1;
+      });
+      if (count) count.textContent = `${visible} repositorios en archivo`;
+    }
+
+    search && search.addEventListener('input', applyArchiveFilter);
+    filters.forEach((button) => {
+      button.addEventListener('click', () => {
+        filters.forEach((item) => item.classList.remove('is-active'));
+        button.classList.add('is-active');
+        active = button.dataset.archiveFilter || 'all';
+        applyArchiveFilter();
+      });
+    });
+
+    archive.addEventListener('toggle', () => {
+      if (!archive.open) return;
+      requestAnimationFrame(() => {
+        cards.forEach((card, index) => {
+          card.style.setProperty('--archive-delay', `${Math.min(index * 14, 420)}ms`);
+          card.classList.add('is-archive-ready');
+        });
+      });
+    });
+
+    applyArchiveFilter();
+  })();
+</script>
+
+<style>
+  .showcase-header { align-items: end; }
+
+  .showcase-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.65rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--primary, #3b82f6);
+    font-weight: 900;
+  }
+
+  .section-link-primary { box-shadow: 0 0 26px rgba(59, 130, 246, 0.2); }
+
+  .showcase-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 1.4rem 0 2rem;
+  }
+
+  .showcase-strip > div {
+    border: 1px solid rgba(120, 140, 180, 0.24);
+    background: linear-gradient(135deg, rgba(255,255,255,0.065), rgba(255,255,255,0.018));
+    border-radius: 18px;
+    padding: 1rem;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 16px 40px rgba(0,0,0,0.12);
+  }
+
+  .showcase-strip strong {
+    display: block;
+    font-family: var(--font-pixel, monospace);
+    font-size: clamp(1.5rem, 3vw, 2.45rem);
+    line-height: 1;
+    color: var(--text-primary, #fff);
+  }
+
+  .showcase-strip span {
+    display: block;
+    margin-top: 0.4rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-secondary, rgba(255,255,255,0.68));
+  }
+
+  .featured-projects-grid { margin-top: 1rem; }
+
+  .repo-all-cta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.25rem;
+    align-items: center;
+    margin: 2rem 0 1.35rem;
+    padding: 1rem;
+    border: 1px solid rgba(80, 145, 255, 0.24);
+    border-radius: 20px;
+    background:
+      radial-gradient(circle at 10% 20%, rgba(80, 145, 255, 0.16), transparent 32%),
+      linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+    box-shadow: 0 18px 55px rgba(0,0,0,0.14);
+  }
+
+  .repo-all-cta span,
+  .repo-archive-panel summary small {
+    display: block;
+    color: var(--text-secondary, rgba(255,255,255,0.68));
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .repo-all-cta strong {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--text-primary, #fff);
+    font-size: 0.98rem;
+  }
+
+  .repo-all-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    justify-content: flex-end;
+  }
+
+  .repo-all-link { white-space: nowrap; }
+  .repo-all-secondary { background: rgba(255,255,255,0.04); }
+
+  .repo-archive-panel {
+    margin-top: 1.25rem;
+    border: 1px solid rgba(120, 140, 180, 0.22);
+    border-radius: 22px;
+    background: rgba(255,255,255,0.035);
+    overflow: hidden;
+  }
+
+  .repo-archive-panel summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.2rem;
+    user-select: none;
+  }
+
+  .repo-archive-panel summary::-webkit-details-marker { display: none; }
+
+  .repo-archive-panel summary strong {
+    display: block;
+    font-family: var(--font-pixel, monospace);
+    letter-spacing: 0.08em;
+    color: var(--text-primary, #fff);
+  }
+
+  .repo-archive-panel summary svg { transition: transform 220ms ease; }
+  .repo-archive-panel[open] summary svg { transform: rotate(180deg); }
+  .repo-archive-body { padding: 0 1.2rem 1.2rem; }
+  .archive-toolbar { margin-top: 0.2rem; }
+
+  .archive-filter {
+    border: 1px solid rgba(120, 140, 180, 0.24);
+    background: rgba(255,255,255,0.045);
+    color: var(--text-secondary, rgba(255,255,255,0.72));
+    border-radius: 999px;
+    padding: 0.58rem 0.8rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+  }
+
+  .archive-filter:hover,
+  .archive-filter.is-active {
+    transform: translateY(-1px);
+    border-color: rgba(80, 145, 255, 0.65);
+    background: rgba(80, 145, 255, 0.15);
+    color: var(--text-primary, #fff);
+  }
+
+  .repo-archive-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.72rem;
+    margin-top: 1rem;
+  }
+
+  .repo-archive-card {
+    --archive-delay: 0ms;
+    display: grid;
+    grid-template-columns: auto 54px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 76px;
+    padding: 0.65rem;
+    border: 1px solid rgba(120, 140, 180, 0.20);
+    border-radius: 16px;
+    text-decoration: none;
+    color: inherit;
+    background: linear-gradient(135deg, rgba(255,255,255,0.065), rgba(255,255,255,0.018));
+    transform: translateY(10px);
+    opacity: 0;
+    animation: archiveIn 460ms cubic-bezier(.2,.9,.2,1) forwards;
+    animation-delay: var(--archive-delay);
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  }
+
+  .repo-archive-card:hover {
+    transform: translateY(-3px) scale(1.012);
+    border-color: rgba(80, 145, 255, 0.62);
+    background: linear-gradient(135deg, rgba(80,145,255,0.13), rgba(255,255,255,0.035));
+    box-shadow: 0 14px 36px rgba(0,0,0,0.18), 0 0 24px rgba(80,145,255,0.16);
+  }
+
+  .archive-index {
+    font-family: var(--font-pixel, monospace);
+    font-size: 0.75rem;
+    color: var(--primary, #3b82f6);
+    min-width: 2.5rem;
+  }
+
+  .archive-thumb {
+    width: 54px;
+    height: 54px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.16);
+    background: rgba(0,0,0,0.18);
+  }
+
+  .archive-main { min-width: 0; }
+
+  .archive-main strong,
+  .archive-main small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .archive-main strong {
+    color: var(--text-primary, #fff);
+    font-size: 0.92rem;
+  }
+
+  .archive-main small {
+    margin-top: 0.2rem;
+    color: var(--text-secondary, rgba(255,255,255,0.64));
+    font-size: 0.72rem;
+  }
+
+  @keyframes archiveIn { to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 880px) {
+    .showcase-strip,
+    .repo-archive-grid { grid-template-columns: 1fr; }
+    .repo-all-cta { flex-direction: column; align-items: stretch; }
+    .repo-all-actions { justify-content: flex-start; }
+  }
+
+  @media (max-width: 560px) {
+    .repo-archive-card { grid-template-columns: auto 44px minmax(0, 1fr); }
+    .repo-archive-card > svg { display: none; }
+    .archive-thumb { width: 44px; height: 44px; }
+  }
+
+/* CDE571 PROJECTS LOCAL MEASURE RESTORE START */
+.projects-section {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.section-header-row,
+.showcase-strip,
+.projects-grid,
+.repo-all-cta,
+.repo-archive-panel {
+  width: min(1400px, calc(100% - 4rem)) !important;
+  max-width: 1400px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.featured-projects-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.repo-archive-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+@media (max-width: 1100px) {
+  .featured-projects-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 880px) {
+  .section-header-row,
+  .showcase-strip,
+  .projects-grid,
+  .repo-all-cta,
+  .repo-archive-panel {
+    width: min(1400px, calc(100% - 2rem)) !important;
+  }
+
+  .showcase-strip,
+  .repo-archive-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .featured-projects-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+/* CDE571 PROJECTS LOCAL MEASURE RESTORE END */
+</style>
+

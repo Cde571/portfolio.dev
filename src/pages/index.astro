@@ -1,0 +1,21 @@
+---
+import ArcadePortfolio from '../components/ArcadePortfolio.astro';
+import Layout from '../layouts/Layout.astro';
+import PixelConsole from '../components/PixelConsole.astro';
+---
+
+<Layout>
+  <ArcadePortfolio />
+
+  <PixelConsole
+    screenImage="/images/pixel-scene.png"
+    musicVideoId="bdehC-ZMT7M"
+    backHash="#home"
+    menu={[
+      { label: "portfolio", action: "#projects" },
+      { label: "play", action: "music:toggle" },
+      { label: "resume", action: "/resume.pdf" },
+      { label: "musica", action: "music:video" },
+    ]}
+  />
+</Layout>
