@@ -8,7 +8,7 @@
  * - YouTube modal: music:video
  */
 const {
-  screenImage = "/images/pixel-scene.png",
+  screenImage = "/images/pixel-scene.webp",
   clickSfx = "/sfx/click.mp3",
   musicSrc = "/music/theme.mp3",
   backHash = "#home",
@@ -118,8 +118,9 @@ const {
     </div>
   </div>
 
-  <audio data-click preload="auto" src={clickSfx}></audio>
-  <audio data-music preload="auto" src={musicSrc}></audio>
+  <audio data-click preload="metadata" src={clickSfx}></audio>
+  <!-- preload="none": la musica solo se descarga cuando el usuario la activa -->
+  <audio data-music preload="none" src={musicSrc}></audio>
 
   <!-- Modal YouTube -->
   <dialog class="pc-modal" data-music-modal aria-label="Music video">

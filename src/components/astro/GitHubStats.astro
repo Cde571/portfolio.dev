@@ -1,3 +1,57 @@
+---
+// Datos del perfil obtenidos en build time desde la API publica de GitHub.
+// Si la API falla o hay rate limit, se usan los valores de respaldo y el build no se rompe.
+const GH_USER = "Cde571";
+
+const FALLBACK = { repos: 54, followers: 9, following: 36, stars: 4 };
+
+async function loadProfile() {
+  try {
+    const headers: Record<string, string> = {
+      Accept: "application/vnd.github+json",
+      "User-Agent": "portfolio.dev-build",
+    };
+    if (import.meta.env.GITHUB_TOKEN) {
+      headers.Authorization = `Bearer ${import.meta.env.GITHUB_TOKEN}`;
+    }
+
+    const userRes = await fetch(`https://api.github.com/users/${GH_USER}`, { headers });
+    if (!userRes.ok) throw new Error(`users -> ${userRes.status}`);
+    const user = await userRes.json();
+
+    // Suma de stars recorriendo los repos publicos (paginado).
+    let stars = 0;
+    for (let page = 1; page <= 5; page++) {
+      const res = await fetch(
+        `https://api.github.com/users/${GH_USER}/repos?per_page=100&page=${page}`,
+        { headers }
+      );
+      if (!res.ok) break;
+      const repos = await res.json();
+      if (!Array.isArray(repos) || repos.length === 0) break;
+      stars += repos.reduce((acc: number, r: any) => acc + (r.stargazers_count ?? 0), 0);
+      if (repos.length < 100) break;
+    }
+
+    return {
+      repos: user.public_repos ?? FALLBACK.repos,
+      followers: user.followers ?? FALLBACK.followers,
+      following: user.following ?? FALLBACK.following,
+      stars: stars || FALLBACK.stars,
+    };
+  } catch (err) {
+    console.warn(
+      `[GitHubStats] No se pudo consultar la API de GitHub, usando valores de respaldo. Motivo: ${
+        err instanceof Error ? err.message : err
+      }`
+    );
+    return FALLBACK;
+  }
+}
+
+const profile = await loadProfile();
+---
+
 <!-- ============================================
      GITHUB STATISTICS - LAYOUT COMPACTO OPTIMIZADO
      ============================================ -->
@@ -16,7 +70,7 @@
           <i data-feather="package" aria-hidden="true"></i>
         </div>
         <div class="stat-info">
-          <div class="stat-number">54</div>
+          <div class="stat-number" data-gh="repos">{profile.repos}</div>
           <div class="stat-label">Public Repositories</div>
         </div>
       </div>
@@ -26,7 +80,7 @@
           <i data-feather="git-commit" aria-hidden="true"></i>
         </div>
         <div class="stat-info">
-          <div class="stat-number">7</div>
+          <div class="stat-number" data-gh="followers">{profile.followers}</div>
           <div class="stat-label">Followers</div>
         </div>
       </div>
@@ -36,7 +90,7 @@
           <i data-feather="star" aria-hidden="true"></i>
         </div>
         <div class="stat-info">
-          <div class="stat-number">4</div>
+          <div class="stat-number" data-gh="stars">{profile.stars}</div>
           <div class="stat-label">Stars</div>
         </div>
       </div>
@@ -46,7 +100,7 @@
           <i data-feather="users" aria-hidden="true"></i>
         </div>
         <div class="stat-info">
-          <div class="stat-number">36</div>
+          <div class="stat-number" data-gh="following">{profile.following}</div>
           <div class="stat-label">Following</div>
         </div>
       </div>

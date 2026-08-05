@@ -383,87 +383,6 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
     });
   
 
-  // ==========================================
-  // PROJECTS: filtros, card-click y scroll effects
-  // ==========================================
-  (function () {
-    const cards = Array.from(document.querySelectorAll('[data-project-card]'));
-    const search = document.getElementById('projectSearch');
-    const filters = Array.from(document.querySelectorAll('.repo-filter'));
-    const resultCount = document.getElementById('projectResultCount');
-    if (!cards.length) return;
-
-    cards.forEach((card, index) => {
-      card.style.setProperty('--project-delay', `${Math.min(index * 28, 420)}ms`);
-
-      card.addEventListener('click', (event) => {
-        if (event.target.closest('[data-project-action]')) return;
-        const href = card.getAttribute('data-repo-href');
-        if (href) window.open(href, '_blank', 'noopener,noreferrer');
-      });
-
-      card.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter') return;
-        const href = card.getAttribute('data-repo-href');
-        if (href) window.open(href, '_blank', 'noopener,noreferrer');
-      });
-
-      card.addEventListener('pointermove', (event) => {
-        const rect = card.getBoundingClientRect();
-        const mx = ((event.clientX - rect.left) / rect.width) * 100;
-        const my = ((event.clientY - rect.top) / rect.height) * 100;
-        card.style.setProperty('--mx', `${mx}%`);
-        card.style.setProperty('--my', `${my}%`);
-      });
-    });
-
-    let activeFilter = 'all';
-    function normalize(value) {
-      return (value || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    }
-
-    function applyFilters() {
-      const q = normalize(search && search.value);
-      let visible = 0;
-      cards.forEach((card) => {
-        const haystack = normalize(card.innerText);
-        const matchesText = !q || haystack.includes(q);
-        const matchesLang = activeFilter === 'all' || haystack.includes(normalize(activeFilter));
-        const show = matchesText && matchesLang;
-        card.classList.toggle('is-hidden-by-filter', !show);
-        if (show) visible++;
-      });
-      if (resultCount) resultCount.textContent = `${visible} repositorios visibles`;
-    }
-
-    if (search) search.addEventListener('input', applyFilters);
-    filters.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        filters.forEach((b) => b.classList.remove('is-active'));
-        btn.classList.add('is-active');
-        activeFilter = btn.dataset.filter || 'all';
-        applyFilters();
-      });
-    });
-
-    function updateScrollFocus() {
-      const viewportCenter = window.innerHeight * 0.52;
-      cards.forEach((card) => {
-        if (card.classList.contains('is-hidden-by-filter')) return;
-        const rect = card.getBoundingClientRect();
-        const cardCenter = rect.top + rect.height / 2;
-        const distance = Math.abs(cardCenter - viewportCenter);
-        const focus = Math.max(0, 1 - distance / (window.innerHeight * 0.55));
-        card.classList.toggle('is-scroll-focus', focus > 0.72);
-        card.style.setProperty('--repo-scroll-lift', `${(focus * -5).toFixed(2)}px`);
-        card.style.setProperty('--cover-shift', `${(focus * -8).toFixed(2)}px`);
-      });
-    }
-
-    updateScrollFocus();
-    window.addEventListener('scroll', updateScrollFocus, { passive: true });
-    window.addEventListener('resize', updateScrollFocus, { passive: true });
-  })();
 
 </script>
 
@@ -3721,8 +3640,16 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
     // =========================
     // CONFIG: public, verifiable profile numbers
     // =========================
-    const GITHUB_REPOSITORIES = 54;
-    const GITHUB_STARS = 4;
+    // Fuente unica de verdad: los valores que GitHubStats.astro renderizo
+    // en build time desde la API de GitHub. Si no estan, se usa el respaldo.
+    function readGh(key, fallback) {
+      const el = document.querySelector(`[data-gh="${key}"]`);
+      const n = el ? parseInt(el.textContent.replace(/\D/g, ""), 10) : NaN;
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    const GITHUB_REPOSITORIES = readGh("repos", 54);
+    const GITHUB_STARS = readGh("stars", 4);
     const EXPERIENCE_START = new Date("2023-01-01");
 
     // =========================
@@ -3786,39 +3713,6 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
 
     document.addEventListener("DOMContentLoaded", initStats);
   })();
-  // ==========================================
-// TECH STACK: Control de pausar/reanudar
-// ==========================================
-(function() {
-  const pauseBtn = document.getElementById('pauseAllScrolls');
-  if (!pauseBtn) return;
-
-  let isPaused = false;
-  const scrollTracks = document.querySelectorAll('.scroll-track');
-
-  pauseBtn.addEventListener('click', () => {
-    isPaused = !isPaused;
-    
-    scrollTracks.forEach(track => {
-      track.style.animationPlayState = isPaused ? 'paused' : 'running';
-    });
-
-    // Cambiar ícono
-    const icon = pauseBtn.querySelector('i');
-    const text = pauseBtn.querySelector('span');
-    
-    if (isPaused) {
-      icon.setAttribute('data-feather', 'play-circle');
-      text.textContent = 'Reanudar';
-    } else {
-      icon.setAttribute('data-feather', 'pause-circle');
-      text.textContent = 'Pausar';
-    }
-
-    // Re-render feather icons
-    if (window.feather) window.feather.replace();
-  });
-})();
 
 // ==========================================
 // GITHUB STATS: Animación de barras al entrar
@@ -3848,87 +3742,6 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
 })();
 
 
-  // ==========================================
-  // PROJECTS: filtros, card-click y scroll effects
-  // ==========================================
-  (function () {
-    const cards = Array.from(document.querySelectorAll('[data-project-card]'));
-    const search = document.getElementById('projectSearch');
-    const filters = Array.from(document.querySelectorAll('.repo-filter'));
-    const resultCount = document.getElementById('projectResultCount');
-    if (!cards.length) return;
-
-    cards.forEach((card, index) => {
-      card.style.setProperty('--project-delay', `${Math.min(index * 28, 420)}ms`);
-
-      card.addEventListener('click', (event) => {
-        if (event.target.closest('[data-project-action]')) return;
-        const href = card.getAttribute('data-repo-href');
-        if (href) window.open(href, '_blank', 'noopener,noreferrer');
-      });
-
-      card.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter') return;
-        const href = card.getAttribute('data-repo-href');
-        if (href) window.open(href, '_blank', 'noopener,noreferrer');
-      });
-
-      card.addEventListener('pointermove', (event) => {
-        const rect = card.getBoundingClientRect();
-        const mx = ((event.clientX - rect.left) / rect.width) * 100;
-        const my = ((event.clientY - rect.top) / rect.height) * 100;
-        card.style.setProperty('--mx', `${mx}%`);
-        card.style.setProperty('--my', `${my}%`);
-      });
-    });
-
-    let activeFilter = 'all';
-    function normalize(value) {
-      return (value || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    }
-
-    function applyFilters() {
-      const q = normalize(search && search.value);
-      let visible = 0;
-      cards.forEach((card) => {
-        const haystack = normalize(card.innerText);
-        const matchesText = !q || haystack.includes(q);
-        const matchesLang = activeFilter === 'all' || haystack.includes(normalize(activeFilter));
-        const show = matchesText && matchesLang;
-        card.classList.toggle('is-hidden-by-filter', !show);
-        if (show) visible++;
-      });
-      if (resultCount) resultCount.textContent = `${visible} repositorios visibles`;
-    }
-
-    if (search) search.addEventListener('input', applyFilters);
-    filters.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        filters.forEach((b) => b.classList.remove('is-active'));
-        btn.classList.add('is-active');
-        activeFilter = btn.dataset.filter || 'all';
-        applyFilters();
-      });
-    });
-
-    function updateScrollFocus() {
-      const viewportCenter = window.innerHeight * 0.52;
-      cards.forEach((card) => {
-        if (card.classList.contains('is-hidden-by-filter')) return;
-        const rect = card.getBoundingClientRect();
-        const cardCenter = rect.top + rect.height / 2;
-        const distance = Math.abs(cardCenter - viewportCenter);
-        const focus = Math.max(0, 1 - distance / (window.innerHeight * 0.55));
-        card.classList.toggle('is-scroll-focus', focus > 0.72);
-        card.style.setProperty('--repo-scroll-lift', `${(focus * -5).toFixed(2)}px`);
-        card.style.setProperty('--cover-shift', `${(focus * -8).toFixed(2)}px`);
-      });
-    }
-
-    updateScrollFocus();
-    window.addEventListener('scroll', updateScrollFocus, { passive: true });
-    window.addEventListener('resize', updateScrollFocus, { passive: true });
-  })();
 
 
 
