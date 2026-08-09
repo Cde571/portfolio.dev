@@ -6,6 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "studio": "node tools/writing-studio/server.mjs",
+    "studio:test": "set STUDIO_NO_OPEN=1&& set STUDIO_SELF_TEST=1&& node tools/writing-studio/server.mjs",
     "astro": "astro"
   },
   "dependencies": {

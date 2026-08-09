@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#080b12" />
+    <title>CDE Writing Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/studio/styles.css" />
+  </head>
+  <body>
+    <div class="app-grid" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="/studio/"><strong>Cde57</strong><span>/ WRITING_STUDIO</span></a>
+      <div class="document-state"><i></i><span id="saveState">Cargando…</span></div>
+      <div class="top-actions">
+        <button class="button button-ghost" id="previewButton" type="button"><span>↗</span> Vista previa</button>
+        <button class="button button-secondary" id="saveButton" type="button"><span>⌘</span> Guardar borrador</button>
+        <button class="button button-primary" id="publishButton" type="button"><span>↑</span> Commit + subir</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="library-panel">
+        <div class="panel-heading">
+          <div><span>ARCHIVO_LOCAL</span><h1>Escritos</h1></div>
+          <button class="square-button" id="newWritingButton" type="button" aria-label="Crear escrito">+</button>
+        </div>
+        <label class="library-search">
+          <span>⌕</span>
+          <input id="librarySearch" type="search" placeholder="Buscar borrador…" autocomplete="off" />
+        </label>
+        <div class="writing-list" id="writingList" aria-label="Lista de escritos"></div>
+        <div class="branch-card">
+          <span>RAMA ACTIVA</span>
+          <strong id="branchName">—</strong>
+          <p>“Commit + subir” enviará solamente el archivo de escritos a esta rama.</p>
+        </div>
+      </aside>
+
+      <section class="editor-panel">
+        <div class="editor-heading">
+          <div><span id="editorIndex">LOG_00</span><h2 id="editorTitle">Editor</h2></div>
+          <button class="danger-link" id="deleteWritingButton" type="button">Eliminar escrito</button>
+        </div>
+
+        <form id="writingForm" autocomplete="off">
+          <div class="field-grid field-grid-main">
+            <label class="field field-wide"><span>Título</span><input id="titleInput" data-writing-field="title" required /></label>
+            <label class="field"><span>URL / slug</span><input id="slugInput" data-writing-field="slug" required /></label>
+            <label class="field"><span>Fecha</span><input id="dateInput" data-writing-field="date" type="date" required /></label>
+            <label class="field"><span>Categoría</span><select id="categoryInput" data-writing-field="category"><option>Estudio</option><option>Nota técnica</option><option>Ensayo</option></select></label>
+            <label class="field"><span>Estado</span><select id="statusInput" data-writing-field="status"><option>Borrador</option><option>En revisión</option><option>Publicado</option></select></label>
+            <label class="field"><span>Lectura (min)</span><input id="readingInput" data-writing-field="readingMinutes" type="number" min="1" max="120" /></label>
+            <label class="field color-field"><span>Color</span><input id="accentInput" data-writing-field="accent" type="color" /></label>
+            <label class="field field-wide"><span>Etiquetas <small>separadas por coma</small></span><input id="tagsInput" data-writing-field="tags" placeholder="Astro, UX, IA" /></label>
+            <label class="field field-wide"><span>Resumen de tarjeta</span><textarea id="excerptInput" data-writing-field="excerpt" rows="3"></textarea></label>
+            <label class="field field-wide"><span>Introducción del artículo</span><textarea id="abstractInput" data-writing-field="abstract" rows="4"></textarea></label>
+          </div>
+
+          <div class="section-toolbar">
+            <div><span>CONTENT_BLOCKS</span><h3>Secciones del escrito</h3></div>
+            <button class="button button-ghost" id="addSectionButton" type="button">+ Añadir sección</button>
+          </div>
+          <div class="section-list" id="sectionList"></div>
+
+          <div class="section-toolbar sources-heading">
+            <div><span>REFERENCES</span><h3>Fuentes</h3></div>
+            <button class="button button-ghost" id="addSourceButton" type="button">+ Añadir fuente</button>
+          </div>
+          <div class="source-list" id="sourceList"></div>
+        </form>
+      </section>
+
+      <aside class="live-panel">
+        <div class="live-heading"><span>LIVE_PREVIEW</span><i></i></div>
+        <article class="mini-preview" id="miniPreview"></article>
+        <div class="shortcut-card">
+          <span>ATAJOS</span>
+          <p><kbd>Ctrl</kbd> + <kbd>S</kbd> Guardar</p>
+          <p><kbd>Ctrl</kbd> + <kbd>Enter</kbd> Vista previa</p>
+        </div>
+      </aside>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="busy-layer" id="busyLayer" hidden>
+      <div class="busy-card"><span class="loader"></span><strong id="busyTitle">Procesando…</strong><p id="busyMessage">Esto puede tardar unos segundos.</p></div>
+    </div>
+
+    <script src="/studio/app.js" type="module"></script>
+  </body>
+</html>
