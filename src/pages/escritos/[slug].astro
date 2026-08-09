@@ -12,7 +12,7 @@ const { writing } = Astro.props;
 
 <WritingLayout title={`${writing.title} — Cristian Echeverry`} description={writing.excerpt}>
   <div class="reading-progress" style={`--article-accent:${writing.accent}`} aria-hidden="true"><span id="readingProgress"></span></div>
-  <main class="article-page" style={`--article-accent:${writing.accent}`}>
+  <main class:list={['article-page', { 'has-visual': writing.image }]} style={`--article-accent:${writing.accent}`}>
     <a class="article-back" href="/escritos"><i data-feather="arrow-left" aria-hidden="true"></i> Volver a escritos</a>
 
     <header class="article-header">
@@ -26,6 +26,18 @@ const { writing } = Astro.props;
         <div><small>ESTADO</small><strong>{writing.status}</strong></div>
       </div>
       <div class="article-tags">{writing.tags.map((tag) => <span>#{tag}</span>)}</div>
+      {writing.image ? (
+        <figure class="article-hero-visual" data-article-visual>
+          <div class="article-visual-frame">
+            <img src={writing.image} alt={writing.imageAlt ?? ''} decoding="async" fetchpriority="high" />
+            <div class="article-visual-scan" aria-hidden="true"></div>
+            <span class="visual-chip visual-chip-left">STATIC_ANALYSIS</span>
+            <span class="visual-chip visual-chip-right">02 SAMPLES / DEFENSIVE MODE</span>
+            <span class="visual-safe-line">NO LIVE CREDENTIALS · NO EXFILTRATION</span>
+          </div>
+          <figcaption>Visualización conceptual 3D — bóveda de credenciales y superficie inalámbrica protegida.</figcaption>
+        </figure>
+      ) : null}
     </header>
 
     <div class="article-layout">
@@ -82,6 +94,7 @@ const { writing } = Astro.props;
       const progress = document.getElementById('readingProgress');
       const links = Array.from(document.querySelectorAll('.article-toc a'));
       const sections = Array.from(document.querySelectorAll('[data-article-section]'));
+      const visual = document.querySelector('[data-article-visual]');
 
       function updateProgress() {
         const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -101,6 +114,22 @@ const { writing } = Astro.props;
       updateProgress();
       window.addEventListener('scroll', updateProgress, { passive: true });
       window.addEventListener('resize', updateProgress, { passive: true });
+
+      if (visual && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        visual.addEventListener('pointermove', (event) => {
+          const rect = visual.getBoundingClientRect();
+          const x = (event.clientX - rect.left) / rect.width - 0.5;
+          const y = (event.clientY - rect.top) / rect.height - 0.5;
+          visual.style.setProperty('--visual-ry', `${(x * 3.2).toFixed(2)}deg`);
+          visual.style.setProperty('--visual-rx', `${(y * -2.3).toFixed(2)}deg`);
+          visual.style.setProperty('--visual-x', `${((x + 0.5) * 100).toFixed(1)}%`);
+          visual.style.setProperty('--visual-y', `${((y + 0.5) * 100).toFixed(1)}%`);
+        });
+        visual.addEventListener('pointerleave', () => {
+          visual.style.setProperty('--visual-ry', '0deg');
+          visual.style.setProperty('--visual-rx', '0deg');
+        });
+      }
     })();
   </script>
 </WritingLayout>
@@ -122,6 +151,19 @@ const { writing } = Astro.props;
   .article-meta small { color: #68768c; font: 600 .56rem/1 var(--journal-mono); letter-spacing: .12em; }
   .article-meta strong { margin-top: .45rem; color: var(--journal-text); font: 600 .72rem/1.4 var(--journal-mono); }
   .article-tags { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.1rem; color: var(--article-accent); font: 500 .64rem/1 var(--journal-mono); }
+  .article-hero-visual { --visual-rx: 0deg; --visual-ry: 0deg; --visual-x: 50%; --visual-y: 50%; margin: 3rem 0 -1rem; perspective: 1200px; }
+  .article-visual-frame { position: relative; aspect-ratio: 16 / 8.1; overflow: hidden; border: 1px solid color-mix(in srgb, var(--article-accent) 48%, transparent); border-radius: 18px; background: #03070c; box-shadow: 0 35px 110px rgba(0,0,0,.5), 0 0 60px color-mix(in srgb, var(--article-accent) 12%, transparent); transform: rotateX(var(--visual-rx)) rotateY(var(--visual-ry)); transform-style: preserve-3d; transition: transform 180ms ease-out, box-shadow 220ms ease; }
+  .article-visual-frame::before { content: ""; position: absolute; z-index: 2; inset: 0; background: radial-gradient(circle at var(--visual-x) var(--visual-y), rgba(255,255,255,.12), transparent 24%), linear-gradient(115deg, transparent 0 43%, rgba(0,245,255,.1) 49%, transparent 55%); mix-blend-mode: screen; pointer-events: none; }
+  .article-visual-frame::after { content: ""; position: absolute; z-index: 2; inset: 0; border: 1px solid rgba(255,255,255,.1); border-radius: inherit; box-shadow: inset 0 0 55px rgba(0,0,0,.36); pointer-events: none; }
+  .article-visual-frame img { width: 100%; height: 100%; display: block; object-fit: cover; transform: scale(1.025) translateZ(0); }
+  .article-visual-scan { position: absolute; z-index: 3; left: 0; right: 0; height: 1px; top: 16%; background: linear-gradient(90deg, transparent, rgba(0,245,255,.78), transparent); box-shadow: 0 0 14px rgba(0,245,255,.85); opacity: .75; animation: visualScan 5.6s ease-in-out infinite; pointer-events: none; }
+  @keyframes visualScan { 0%, 100% { top: 13%; opacity: .22; } 48%, 52% { top: 83%; opacity: .85; } }
+  .visual-chip, .visual-safe-line { position: absolute; z-index: 4; color: #d9feff; background: rgba(3,8,14,.62); border: 1px solid rgba(0,245,255,.35); font: 600 .55rem/1 var(--journal-mono); letter-spacing: .1em; }
+  .visual-chip { top: 1rem; padding: .48rem .6rem; border-radius: 7px; }
+  .visual-chip-left { left: 1rem; color: var(--article-accent); }
+  .visual-chip-right { right: 1rem; }
+  .visual-safe-line { left: 1rem; bottom: 1rem; padding: .55rem .65rem; border-color: rgba(140,255,0,.38); border-radius: 7px; color: #baff73; }
+  .article-hero-visual figcaption { margin-top: .7rem; color: #627089; font: 500 .58rem/1.5 var(--journal-mono); text-align: right; }
   .article-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 4rem; padding-top: 4rem; }
   .article-toc { position: sticky; top: 110px; align-self: start; }
   .article-toc > span { color: var(--article-accent); font: 400 .55rem/1 var(--journal-pixel); }
@@ -150,5 +192,5 @@ const { writing } = Astro.props;
   .article-next a { margin-top: .75rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; color: var(--journal-text); text-decoration: none; font-size: 1.1rem; font-weight: 700; }
   .article-next a:hover { color: var(--article-accent); }
   @media (max-width: 800px) { .reading-progress { top: 111px; } .article-layout { grid-template-columns: 1fr; gap: 2rem; } .article-toc { position: static; padding: 1rem; border: 1px solid var(--journal-line); border-radius: 10px; } .article-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 560px) { .article-header { padding: 3.5rem 0 3rem; } .article-state { align-items: flex-start; flex-direction: column; } .article-header h1 { font-size: clamp(1.8rem, 10vw, 2.7rem); } .article-abstract { font-size: .98rem; } .article-meta { grid-template-columns: 1fr 1fr; } .draft-notice, .article-callout { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .article-header { padding: 3.5rem 0 3rem; } .article-state { align-items: flex-start; flex-direction: column; } .article-header h1 { font-size: clamp(1.8rem, 10vw, 2.7rem); } .article-abstract { font-size: .98rem; } .article-meta { grid-template-columns: 1fr 1fr; } .draft-notice, .article-callout { grid-template-columns: 1fr; } .article-hero-visual { margin-top: 2rem; } .article-visual-frame { aspect-ratio: 4 / 3; border-radius: 12px; } .visual-chip-right { display: none; } .visual-chip, .visual-safe-line { left: .65rem; font-size: .45rem; } .visual-chip { top: .65rem; } .visual-safe-line { bottom: .65rem; } }
 </style>

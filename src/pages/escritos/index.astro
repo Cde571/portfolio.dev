@@ -22,7 +22,7 @@ const averageReadingTime = Math.round(writings.reduce((total, writing) => total 
         <div class="terminal-top"><span></span><span></span><span></span><small>cde571/journal.log</small></div>
         <div class="terminal-body">
           <p><b>$</b> journal --status</p>
-          <p><i>✓</i> {writings.length} borradores disponibles</p>
+          <p><i>✓</i> {writings.length} textos disponibles</p>
           <p><i>✓</i> {writingCategories.length - 1} líneas de estudio</p>
           <p><i>✓</i> {averageReadingTime} min de lectura promedio</p>
           <p class="terminal-cursor"><b>›</b> documentación en progreso<span>_</span></p>
@@ -64,6 +64,12 @@ const averageReadingTime = Math.round(writings.reduce((total, writing) => total 
           >
             <div class="journal-card-index">{String(index + 1).padStart(2, '0')}</div>
             <div class="journal-card-main">
+              {writing.image ? (
+                <div class="journal-card-visual">
+                  <img src={writing.image} alt={writing.imageAlt ?? ''} loading="lazy" decoding="async" />
+                  <span>3D / DEFENSE LAB</span>
+                </div>
+              ) : null}
               <div class="journal-card-meta">
                 <span>{writing.category}</span><span>•</span><time datetime={writing.date}>{writing.dateLabel}</time><span>•</span><span>{writing.readingMinutes} MIN</span>
               </div>
@@ -193,6 +199,11 @@ const averageReadingTime = Math.round(writings.reduce((total, writing) => total 
   .journal-card::before { content: ""; position: absolute; left: -1px; top: 20%; bottom: 20%; width: 2px; background: var(--card-accent); box-shadow: 0 0 14px var(--card-accent); }
   .journal-card:hover { transform: translateX(5px); border-color: color-mix(in srgb, var(--card-accent) 45%, transparent); background: linear-gradient(110deg, color-mix(in srgb, var(--card-accent) 8%, #121927), rgba(10,15,24,.78)); }
   .journal-card-index { color: var(--card-accent); font: 400 .85rem/1.3 var(--journal-pixel); }
+  .journal-card-visual { position: relative; width: min(100%, 760px); aspect-ratio: 16 / 7; margin-bottom: 1rem; overflow: hidden; border: 1px solid color-mix(in srgb, var(--card-accent) 35%, transparent); border-radius: 11px; background: #05080d; }
+  .journal-card-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,11,18,.7), transparent 58%); pointer-events: none; }
+  .journal-card-visual img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform 650ms cubic-bezier(.2,.8,.2,1); }
+  .journal-card:hover .journal-card-visual img { transform: scale(1.045); }
+  .journal-card-visual span { position: absolute; z-index: 1; right: .65rem; bottom: .6rem; color: var(--card-accent); font: 600 .53rem/1 var(--journal-mono); letter-spacing: .1em; }
   .journal-card-meta { display: flex; flex-wrap: wrap; gap: .5rem; color: var(--card-accent); font: 600 .61rem/1.3 var(--journal-mono); letter-spacing: .08em; text-transform: uppercase; }
   .journal-card-meta span:nth-child(even) { color: #4c5870; }
   .journal-card h3 { margin-top: .65rem; }

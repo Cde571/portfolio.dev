@@ -134,6 +134,7 @@ button { color: inherit; }
 .live-heading { padding-bottom: .8rem; border-bottom: 1px solid var(--line); }
 .live-heading i { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 10px rgba(140,255,0,.65); }
 .mini-preview { --preview-accent: var(--cyan); padding: 1.2rem .2rem 2rem; }
+.mini-cover { width: 100%; aspect-ratio: 16 / 9; margin-bottom: 1rem; display: block; object-fit: cover; border: 1px solid color-mix(in srgb, var(--preview-accent) 36%, transparent); border-radius: 10px; box-shadow: 0 14px 35px rgba(0,0,0,.32); }
 .mini-category { color: var(--preview-accent); font: 600 .58rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
 .mini-preview h2 { margin: 1rem 0 0; color: var(--text); font: 400 clamp(1.15rem, 2vw, 1.65rem)/1.5 var(--pixel); }
 .mini-abstract { margin: 1rem 0 0; padding-left: .8rem; border-left: 2px solid var(--preview-accent); color: #aab7ca; font-size: .82rem; line-height: 1.7; }

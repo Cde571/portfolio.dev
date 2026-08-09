@@ -28,6 +28,8 @@ const fields = {
   category: document.getElementById('categoryInput'),
   date: document.getElementById('dateInput'),
   excerpt: document.getElementById('excerptInput'),
+  image: document.getElementById('imageInput'),
+  imageAlt: document.getElementById('imageAltInput'),
   readingMinutes: document.getElementById('readingInput'),
   slug: document.getElementById('slugInput'),
   status: document.getElementById('statusInput'),
@@ -68,6 +70,8 @@ function createWriting() {
     readingMinutes: 5,
     tags: [],
     accent: '#00f5ff',
+    image: '',
+    imageAlt: '',
     sections: [{ id: 'contexto', title: '01. Contexto', body: ['Empieza a escribir aquí. Separa los párrafos con una línea vacía.'] }],
     sources: [],
   };
@@ -157,6 +161,7 @@ function renderMiniPreview() {
   const sections = writing.sections.slice(0, 2);
   elements.miniPreview.style.setProperty('--preview-accent', writing.accent || '#00f5ff');
   elements.miniPreview.innerHTML = `
+    ${writing.image ? `<img class="mini-cover" src="${escapeHtml(writing.image)}" alt="${escapeHtml(writing.imageAlt || '')}" />` : ''}
     <div class="mini-category">${escapeHtml(writing.category)} / ${escapeHtml(writing.status)}</div>
     <h2>${escapeHtml(writing.title)}</h2>
     <p class="mini-abstract">${escapeHtml(writing.abstract || writing.excerpt)}</p>

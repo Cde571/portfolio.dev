@@ -146,6 +146,10 @@ function normalizeWritings(input) {
       accent: /^#[0-9a-f]{6}$/i.test(rawWriting.accent || '') ? rawWriting.accent : '#00f5ff',
       sections,
     };
+    const image = stringValue(rawWriting.image);
+    const imageAlt = stringValue(rawWriting.imageAlt);
+    if (image.startsWith('/')) writing.image = image;
+    if (imageAlt) writing.imageAlt = imageAlt;
     if (sources.length) writing.sources = sources;
     return writing;
   });

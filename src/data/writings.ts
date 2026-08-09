@@ -22,6 +22,8 @@ export type Writing = {
   readingMinutes: number;
   tags: string[];
   accent: string;
+  image?: string;
+  imageAlt?: string;
   sections: WritingSection[];
   sources?: { label: string; href: string }[];
 };
