@@ -9,8 +9,13 @@
     "date": "2026-08-08",
     "dateLabel": "8 AGO 2026",
     "readingMinutes": 7,
-    "tags": ["Portfolio", "UX", "GitHub", "Arquitectura de información"],
-    "accent": "#00f5ff",
+    "tags": [
+      "Portfolio",
+      "UX",
+      "GitHub",
+      "Arquitectura de información"
+    ],
+    "accent": "#ff4d00",
     "sections": [
       {
         "id": "contexto",
@@ -68,6 +73,12 @@
           "El siguiente paso es transformar los mejores proyectos en casos de estudio individuales: problema, restricciones, decisiones, arquitectura, resultados y aprendizajes. Este texto permanecerá como borrador hasta revisar esa evidencia proyecto por proyecto."
         ]
       }
+    ],
+    "sources": [
+      {
+        "label": "Nueva fuente",
+        "href": "https://"
+      }
     ]
   },
   {
@@ -80,7 +91,12 @@
     "date": "2026-08-08",
     "dateLabel": "8 AGO 2026",
     "readingMinutes": 6,
-    "tags": ["Motion", "Accesibilidad", "CSS", "Rendimiento"],
+    "tags": [
+      "Motion",
+      "Accesibilidad",
+      "CSS",
+      "Rendimiento"
+    ],
     "accent": "#ff2bd6",
     "sections": [
       {
@@ -161,7 +177,12 @@
     "date": "2026-08-08",
     "dateLabel": "8 AGO 2026",
     "readingMinutes": 8,
-    "tags": ["SaaS", "Producto", "Arquitectura", "IA"],
+    "tags": [
+      "SaaS",
+      "Producto",
+      "Arquitectura",
+      "IA"
+    ],
     "accent": "#8cff00",
     "sections": [
       {
