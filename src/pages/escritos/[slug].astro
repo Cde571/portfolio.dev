@@ -1,0 +1,154 @@
+---
+import WritingLayout from '../../layouts/WritingLayout.astro';
+import { writings, type Writing } from '../../data/writings';
+
+export function getStaticPaths() {
+  return writings.map((writing) => ({ params: { slug: writing.slug }, props: { writing } }));
+}
+
+interface Props { writing: Writing }
+const { writing } = Astro.props;
+---
+
+<WritingLayout title={`${writing.title} — Cristian Echeverry`} description={writing.excerpt}>
+  <div class="reading-progress" style={`--article-accent:${writing.accent}`} aria-hidden="true"><span id="readingProgress"></span></div>
+  <main class="article-page" style={`--article-accent:${writing.accent}`}>
+    <a class="article-back" href="/escritos"><i data-feather="arrow-left" aria-hidden="true"></i> Volver a escritos</a>
+
+    <header class="article-header">
+      <div class="article-state"><span>{writing.category}</span><span>{writing.status} / POR REVISAR</span></div>
+      <h1>{writing.title}</h1>
+      <p class="article-abstract">{writing.abstract}</p>
+      <div class="article-meta">
+        <div><small>AUTOR</small><strong>Cristian Echeverry</strong></div>
+        <div><small>FECHA</small><strong><time datetime={writing.date}>{writing.dateLabel}</time></strong></div>
+        <div><small>LECTURA</small><strong>{writing.readingMinutes} minutos</strong></div>
+        <div><small>ESTADO</small><strong>{writing.status}</strong></div>
+      </div>
+      <div class="article-tags">{writing.tags.map((tag) => <span>#{tag}</span>)}</div>
+    </header>
+
+    <div class="article-layout">
+      <aside class="article-toc">
+        <span>EN ESTE TEXTO</span>
+        <nav aria-label="Tabla de contenido">
+          {writing.sections.map((section) => <a href={`#${section.id}`}>{section.title}</a>)}
+          {writing.sources?.length ? <a href="#fuentes">Fuentes</a> : null}
+        </nav>
+      </aside>
+
+      <article class="article-content">
+        {writing.sections.map((section) => (
+          <section id={section.id} data-article-section>
+            <h2>{section.title}</h2>
+            {section.body.map((paragraph) => <p>{paragraph}</p>)}
+            {section.note ? <aside class="article-callout"><span>NOTA</span><p>{section.note}</p></aside> : null}
+            {section.bullets?.length ? <ul>{section.bullets.map((bullet) => <li>{bullet}</li>)}</ul> : null}
+          </section>
+        ))}
+
+        {writing.sources?.length ? (
+          <section id="fuentes" data-article-section>
+            <h2>Fuentes sugeridas</h2>
+            <p>Referencias para ampliar y revisar este borrador:</p>
+            <ul class="article-sources">
+              {writing.sources.map((source) => <li><a href={source.href} target="_blank" rel="noreferrer">{source.label} <i data-feather="external-link" aria-hidden="true"></i></a></li>)}
+            </ul>
+          </section>
+        ) : null}
+
+        <aside class="draft-notice">
+          <span>DRAFT_MODE</span>
+          <div>
+            <strong>Este escrito todavía está en revisión.</strong>
+            <p>Antes de publicarlo como versión final conviene validar ejemplos, resultados, fechas y fuentes con la experiencia directa del autor.</p>
+          </div>
+        </aside>
+
+        <nav class="article-next" aria-label="Otros escritos">
+          <span>CONTINUAR LEYENDO</span>
+          {(() => {
+            const currentIndex = writings.findIndex((item) => item.slug === writing.slug);
+            const next = writings[(currentIndex + 1) % writings.length];
+            return <a href={`/escritos/${next.slug}`}>{next.title}<i data-feather="arrow-right" aria-hidden="true"></i></a>;
+          })()}
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <script is:inline>
+    (() => {
+      const progress = document.getElementById('readingProgress');
+      const links = Array.from(document.querySelectorAll('.article-toc a'));
+      const sections = Array.from(document.querySelectorAll('[data-article-section]'));
+
+      function updateProgress() {
+        const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        if (progress) progress.style.width = `${Math.min(100, Math.max(0, (window.scrollY / max) * 100))}%`;
+      }
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            links.forEach((link) => link.classList.toggle('is-active', link.getAttribute('href') === `#${entry.target.id}`));
+          });
+        }, { rootMargin: '-20% 0px -65% 0px' });
+        sections.forEach((section) => observer.observe(section));
+      }
+
+      updateProgress();
+      window.addEventListener('scroll', updateProgress, { passive: true });
+      window.addEventListener('resize', updateProgress, { passive: true });
+    })();
+  </script>
+</WritingLayout>
+
+<style>
+  .reading-progress { position: fixed; top: 71px; left: 0; right: 0; z-index: 60; height: 2px; background: transparent; }
+  .reading-progress span { display: block; width: 0; height: 100%; background: var(--article-accent); box-shadow: 0 0 12px var(--article-accent); }
+  .article-page { position: relative; z-index: 1; width: min(1080px, calc(100% - 2rem)); margin: 0 auto; padding: 3.2rem 0 2rem; }
+  .article-back { display: inline-flex; align-items: center; gap: .5rem; color: var(--journal-muted); text-decoration: none; font: 600 .7rem/1 var(--journal-mono); }
+  .article-back:hover { color: var(--article-accent); }
+  .article-header { padding: 5rem 0 4rem; border-bottom: 1px solid var(--journal-line); }
+  .article-state { display: flex; justify-content: space-between; gap: 1rem; color: var(--article-accent); font: 600 .63rem/1 var(--journal-mono); letter-spacing: .13em; text-transform: uppercase; }
+  .article-state span:last-child { color: #fbbf24; }
+  .article-header h1 { max-width: 980px; margin-top: 1.5rem; color: var(--journal-text); font: 400 clamp(2.1rem, 5.6vw, 4.5rem)/1.18 var(--journal-pixel); letter-spacing: -.035em; text-wrap: balance; }
+  .article-abstract { max-width: 840px; margin-top: 1.8rem; padding-left: 1.2rem; border-left: 2px solid var(--article-accent); color: #b4c0d2; font-size: 1.1rem; line-height: 1.85; }
+  .article-meta { margin-top: 2.2rem; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+  .article-meta > div { padding: .9rem 0; border-top: 1px solid var(--journal-line); }
+  .article-meta small, .article-meta strong { display: block; }
+  .article-meta small { color: #68768c; font: 600 .56rem/1 var(--journal-mono); letter-spacing: .12em; }
+  .article-meta strong { margin-top: .45rem; color: var(--journal-text); font: 600 .72rem/1.4 var(--journal-mono); }
+  .article-tags { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.1rem; color: var(--article-accent); font: 500 .64rem/1 var(--journal-mono); }
+  .article-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 4rem; padding-top: 4rem; }
+  .article-toc { position: sticky; top: 110px; align-self: start; }
+  .article-toc > span { color: var(--article-accent); font: 400 .55rem/1 var(--journal-pixel); }
+  .article-toc nav { display: grid; gap: .12rem; margin-top: 1rem; border-left: 1px solid var(--journal-line); }
+  .article-toc a { padding: .5rem 0 .5rem .8rem; border-left: 2px solid transparent; color: #718098; text-decoration: none; font: 500 .65rem/1.45 var(--journal-mono); transform: translateX(-1px); }
+  .article-toc a:hover, .article-toc a.is-active { border-left-color: var(--article-accent); color: var(--journal-text); }
+  .article-content { min-width: 0; }
+  .article-content > section { scroll-margin-top: 105px; padding: 0 0 3.8rem; }
+  .article-content h2 { padding-bottom: .85rem; border-bottom: 1px solid var(--journal-line); color: var(--journal-text); font: 700 clamp(1.25rem, 2.6vw, 1.7rem)/1.4 var(--journal-sans); }
+  .article-content h2::before { content: "> "; color: var(--article-accent); font-family: var(--journal-mono); }
+  .article-content section > p { margin-top: 1.25rem; color: #aab6c8; font-size: 1rem; line-height: 1.95; }
+  .article-content ul { margin: 1.2rem 0 0; padding: 0; list-style: none; display: grid; gap: .7rem; }
+  .article-content li { position: relative; padding-left: 1.35rem; color: #aab6c8; font-size: .94rem; line-height: 1.75; }
+  .article-content li::before { content: "■"; position: absolute; left: 0; top: .08rem; color: var(--article-accent); font-size: .48rem; }
+  .article-callout { margin-top: 1.4rem; padding: 1rem 1.1rem; border: 1px solid color-mix(in srgb, var(--article-accent) 30%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--article-accent) 5%, transparent); display: grid; grid-template-columns: auto 1fr; gap: 1rem; }
+  .article-callout span { color: var(--article-accent); font: 400 .52rem/1.7 var(--journal-pixel); }
+  .article-callout p { color: #b5c2d5; font: 500 .78rem/1.75 var(--journal-mono); }
+  .article-sources a { display: inline-flex; align-items: center; gap: .4rem; color: var(--article-accent); text-decoration: none; }
+  .article-sources a:hover { text-decoration: underline; }
+  .draft-notice { margin-top: .5rem; padding: 1.3rem; border: 1px solid rgba(245,158,11,.26); border-radius: 12px; background: rgba(245,158,11,.05); display: grid; grid-template-columns: auto 1fr; gap: 1rem; }
+  .draft-notice > span { color: #fbbf24; font: 400 .52rem/1.7 var(--journal-pixel); }
+  .draft-notice strong { color: var(--journal-text); font-size: .92rem; }
+  .draft-notice p { margin-top: .4rem; color: var(--journal-muted); font-size: .83rem; line-height: 1.65; }
+  .article-next { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--journal-line); }
+  .article-next > span { color: #68768c; font: 600 .57rem/1 var(--journal-mono); letter-spacing: .12em; }
+  .article-next a { margin-top: .75rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; color: var(--journal-text); text-decoration: none; font-size: 1.1rem; font-weight: 700; }
+  .article-next a:hover { color: var(--article-accent); }
+  @media (max-width: 800px) { .reading-progress { top: 111px; } .article-layout { grid-template-columns: 1fr; gap: 2rem; } .article-toc { position: static; padding: 1rem; border: 1px solid var(--journal-line); border-radius: 10px; } .article-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .article-header { padding: 3.5rem 0 3rem; } .article-state { align-items: flex-start; flex-direction: column; } .article-header h1 { font-size: clamp(1.8rem, 10vw, 2.7rem); } .article-abstract { font-size: .98rem; } .article-meta { grid-template-columns: 1fr 1fr; } .draft-notice, .article-callout { grid-template-columns: 1fr; } }
+</style>
