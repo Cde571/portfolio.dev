@@ -144,11 +144,14 @@ Abrir `http://localhost:4321`.
 
 Esta versión mantiene el modelo visual original y agrega una sección de proyectos más completa:
 
-- 54 repositorios conectados con enlace directo a GitHub.
+- 82 proyectos catalogados y acceso al perfil completo de 89 repositorios en GitHub.
 - Botón `Repositorio` corregido para abrir el repo real.
-- Miniatura PNG generada para cada proyecto.
+- 28 capturas reales nuevas tomadas con cada proyecto en ejecución.
 - Búsqueda y filtros por lenguaje.
-- Scroll effects suaves en las tarjetas de repositorios.
+- Scroll restaurado en toda la página y efectos suaves sin desenfoque de contenido.
+- Navegación responsive accesible también en pantallas móviles.
+- Archivo de proyectos con apertura directa, búsqueda, filtros y estados accesibles.
+- Astro 7 y dependencias actualizadas sin vulnerabilidades reportadas por `npm audit`.
 
 ### Correr localmente
 

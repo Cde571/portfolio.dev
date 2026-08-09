@@ -1,3 +1,5 @@
+import { importedProjects } from './importedProjects';
+
 export type ProjectLink = {
   label: string;
   href: string;
@@ -14,9 +16,11 @@ export type Project = {
   language?: string;
   category?: string;
   updated?: string;
+  private?: boolean;
 };
 
 export const projects: Project[] = [
+  ...importedProjects,
   {
     title: "Scroll Effects",
     placeholder: "scroll-effects",

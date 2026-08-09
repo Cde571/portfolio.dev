@@ -37,6 +37,7 @@ const repoLink = project.links.find((link) => link.type === "repo") ?? project.l
     <div class="repo-meta">
       {project.language ? <span>{project.language}</span> : null}
       {project.updated ? <span>{project.updated}</span> : null}
+      {project.private ? <span class="private-project-badge"><i data-feather="lock" aria-hidden="true"></i> Privado</span> : null}
     </div>
     <h3>{project.title}</h3>
     <p>{project.description}</p>
@@ -60,3 +61,17 @@ const repoLink = project.links.find((link) => link.type === "repo") ?? project.l
     </div>
   </div>
 </article>
+
+<style>
+  .private-project-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #fbbf24;
+  }
+
+  .private-project-badge :global(svg) {
+    width: 12px;
+    height: 12px;
+  }
+</style>

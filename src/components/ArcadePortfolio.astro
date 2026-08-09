@@ -25,7 +25,9 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
   <PixelChat />
   <ScrollIndicator />
 
-  <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js">
+  <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js"></script>
+
+  <script is:inline>
 
   // ==========================================
   // PROJECTS: filtros, card-click y scroll effects
@@ -3358,7 +3360,7 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
   min-width: 0 !important;
   max-width: none !important;
   min-height: 76px !important;
-  grid-template-columns: auto 54px minmax(0, 1fr) auto !important;
+  grid-template-columns: auto 54px minmax(0, 1fr) auto auto !important;
   box-sizing: border-box !important;
 }
 
@@ -3440,6 +3442,55 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
     width: 44px !important;
     height: 44px !important;
     min-width: 44px !important;
+  }
+}
+
+/* Navegación móvil: mantiene todas las secciones accesibles sin menú oculto. */
+@media (max-width: 720px) {
+  .nav-content {
+    flex-wrap: wrap !important;
+    gap: 0.65rem !important;
+    padding: 0.72rem 0.85rem 0.62rem !important;
+  }
+
+  .nav-icons {
+    margin-left: auto;
+  }
+
+  .nav-icons .icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .nav-links {
+    display: flex !important;
+    order: 3;
+    width: 100%;
+    gap: 0.35rem !important;
+    overflow-x: auto;
+    padding: 0.2rem 0 0.12rem;
+    scrollbar-width: none;
+  }
+
+  .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-link {
+    flex: 0 0 auto;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 999px;
+    padding: 0.48rem 0.62rem;
+    font-size: 0.58rem !important;
+    background: rgba(255,255,255,0.035);
+  }
+
+  .nav-link.active::after {
+    display: none;
+  }
+
+  .hero {
+    padding-top: 9.5rem !important;
   }
 }
 /* CDE571 ORIGINAL MEASURE RESTORE END */
@@ -3624,12 +3675,8 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
       });
     }
 
-    // Init
-    if (!dismissed()) {
-      // si ya está abajo por refresh, lo mostramos
-      onScroll();
-      window.addEventListener("scroll", onScroll, { passive: true });
-    }
+    // El chat queda disponible desde el bot, pero no interrumpe la lectura
+    // apareciendo automáticamente durante el scroll.
   })();
    (function () {
     const viewsEl = document.getElementById("viewsCount");
@@ -3831,6 +3878,10 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
     const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
     document.querySelectorAll('[data-hero-portal], .hero-scroll-portal, [data-repo-orbit], .repo-orbit-panel').forEach((el) => el.remove());
+    // El modo inmersivo anterior reducía la opacidad y desenfocaba secciones
+    // completas según el scroll. Se conserva el diseño base, pero se desactiva
+    // esa capa para priorizar legibilidad, rendimiento y navegación predecible.
+    return;
     if (reduced) return;
 
     const hero = document.querySelector('.hero');
@@ -3994,8 +4045,4 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
 </script>
 <!-- CDE571 IMMERSIVE SCROLL TRANSITIONS SCRIPT END -->
 </div>
-
-
-
-
 
