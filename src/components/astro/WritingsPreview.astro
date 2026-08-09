@@ -17,7 +17,13 @@ const previewWritings = writings.slice(0, 3);
 
     <div class="writings-preview-grid">
       {previewWritings.map((writing, index) => (
-        <article class="writing-preview-card" style={`--writing-accent:${writing.accent}`}>
+        <article class:list={['writing-preview-card', { 'has-cover': writing.image }]} style={`--writing-accent:${writing.accent}`}>
+          {writing.image ? (
+            <div class="writing-preview-cover">
+              <img src={writing.image} alt={writing.imageAlt ?? ''} loading="lazy" decoding="async" />
+              <span>DEFENSIVE_RESEARCH</span>
+            </div>
+          ) : null}
           <div class="writing-preview-top">
             <span class="writing-number">LOG_{String(index + 1).padStart(2, '0')}</span>
             <span class="writing-status">{writing.status}</span>
@@ -120,6 +126,12 @@ const previewWritings = writings.slice(0, 3);
   }
 
   .writing-preview-card:hover { transform: translateY(-6px); border-color: color-mix(in srgb, var(--writing-accent) 55%, transparent); box-shadow: 0 24px 70px rgba(0,0,0,.28), 0 0 30px color-mix(in srgb, var(--writing-accent) 12%, transparent); }
+  .writing-preview-cover { position: relative; margin: -1.25rem -1.25rem 1.1rem; aspect-ratio: 16 / 8.5; overflow: hidden; border-bottom: 1px solid rgba(0,245,255,.25); }
+  .writing-preview-cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,11,18,.82), transparent 55%), linear-gradient(120deg, transparent 45%, rgba(0,245,255,.12), transparent 57%); pointer-events: none; }
+  .writing-preview-cover img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform 700ms cubic-bezier(.2,.8,.2,1), filter 300ms ease; }
+  .writing-preview-card:hover .writing-preview-cover img { transform: scale(1.055); filter: saturate(1.12); }
+  .writing-preview-cover span { position: absolute; z-index: 1; left: .8rem; bottom: .7rem; padding: .35rem .48rem; border: 1px solid rgba(0,245,255,.4); border-radius: 6px; color: #bffcff; background: rgba(5,11,18,.68); font: 600 .52rem/1 var(--font-mono, monospace); letter-spacing: .1em; }
+  .writing-preview-card.has-cover { min-height: 560px; }
   .writing-preview-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
   .writing-number { color: var(--writing-accent); font: 600 .72rem/1 var(--font-mono, monospace); letter-spacing: .12em; }
   .writing-status { padding: .35rem .48rem; border: 1px solid rgba(245,158,11,.35); border-radius: 999px; color: #fbbf24; background: rgba(245,158,11,.08); font: 700 .55rem/1 var(--font-mono, monospace); text-transform: uppercase; }

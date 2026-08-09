@@ -55,6 +55,8 @@
             <label class="field"><span>Estado</span><select id="statusInput" data-writing-field="status"><option>Borrador</option><option>En revisión</option><option>Publicado</option></select></label>
             <label class="field"><span>Lectura (min)</span><input id="readingInput" data-writing-field="readingMinutes" type="number" min="1" max="120" /></label>
             <label class="field color-field"><span>Color</span><input id="accentInput" data-writing-field="accent" type="color" /></label>
+            <label class="field field-wide"><span>Imagen de portada <small>ruta desde public, por ejemplo /writings/portada.webp</small></span><input id="imageInput" data-writing-field="image" placeholder="/writings/portada.webp" /></label>
+            <label class="field field-wide"><span>Descripción accesible de la imagen</span><input id="imageAltInput" data-writing-field="imageAlt" placeholder="Describe brevemente lo que aparece en la portada" /></label>
             <label class="field field-wide"><span>Etiquetas <small>separadas por coma</small></span><input id="tagsInput" data-writing-field="tags" placeholder="Astro, UX, IA" /></label>
             <label class="field field-wide"><span>Resumen de tarjeta</span><textarea id="excerptInput" data-writing-field="excerpt" rows="3"></textarea></label>
             <label class="field field-wide"><span>Introducción del artículo</span><textarea id="abstractInput" data-writing-field="abstract" rows="4"></textarea></label>
