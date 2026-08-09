@@ -11,6 +11,9 @@ Portfolio personal de Cristian Echeverry con estética arcade/pixel, construido 
 - Estadísticas visibles basadas en el perfil público de GitHub, sin contador local falso de visitas.
 - Efectos visuales conservados, pero sin `backdrop-filter` borroso para evitar movimiento visual extraño al hacer scroll.
 - Consola arcade interactiva y widget de contacto pixel-art.
+- Bitácora de ingeniería en `/escritos`, con búsqueda, filtros y tres estudios iniciales marcados como borradores.
+- Páginas individuales de lectura con tabla de contenido, progreso, fuentes y navegación entre escritos.
+- Estudio local para crear y editar escritos, generar una vista previa y publicar con un commit desde una interfaz visual.
 
 ## Stack
 
@@ -33,6 +36,7 @@ src/
 │       ├── Stats.astro
 │       ├── Projects.astro
 │       ├── ProjectCard.astro
+│       ├── WritingsPreview.astro
 │       ├── About.astro
 │       ├── GitHubStats.astro
 │       ├── Contact.astro
@@ -40,11 +44,16 @@ src/
 │       ├── PixelChat.astro
 │       └── ScrollIndicator.astro
 ├── data/
-│   └── projects.ts
+│   ├── projects.ts
+│   └── writings.ts
 ├── layouts/
-│   └── Layout.astro
+│   ├── Layout.astro
+│   └── WritingLayout.astro
 └── pages/
-    └── index.astro
+    ├── index.astro
+    └── escritos/
+        ├── index.astro
+        └── [slug].astro
 ```
 
 ## Instalación
@@ -76,6 +85,21 @@ Astro normalmente abre el proyecto en:
 ```text
 http://localhost:4321
 ```
+
+## CDE Writing Studio
+
+En Windows, abre `RUN_WRITING_STUDIO.cmd` con doble clic. También puedes iniciarlo desde PowerShell:
+
+```powershell
+npm.cmd run studio
+```
+
+El estudio se abre en `http://127.0.0.1:4177/studio/` y funciona únicamente en el equipo local.
+
+- **Guardar borrador** actualiza `src/data/writings.json` y conserva una copia de seguridad local.
+- **Vista previa** compila el portfolio y abre la página real del escrito.
+- **Commit + subir** valida el sitio, crea un commit del archivo de escritos y hace push a la rama activa.
+- Atajos: `Ctrl + S` para guardar y `Ctrl + Enter` para previsualizar.
 
 ## Build de producción
 
@@ -144,11 +168,14 @@ Abrir `http://localhost:4321`.
 
 Esta versión mantiene el modelo visual original y agrega una sección de proyectos más completa:
 
-- 54 repositorios conectados con enlace directo a GitHub.
+- 82 proyectos catalogados y acceso al perfil completo de 89 repositorios en GitHub.
 - Botón `Repositorio` corregido para abrir el repo real.
-- Miniatura PNG generada para cada proyecto.
+- 28 capturas reales nuevas tomadas con cada proyecto en ejecución.
 - Búsqueda y filtros por lenguaje.
-- Scroll effects suaves en las tarjetas de repositorios.
+- Scroll restaurado en toda la página y efectos suaves sin desenfoque de contenido.
+- Navegación responsive accesible también en pantallas móviles.
+- Archivo de proyectos con apertura directa, búsqueda, filtros y estados accesibles.
+- Astro 7 y dependencias actualizadas sin vulnerabilidades reportadas por `npm audit`.
 
 ### Correr localmente
 

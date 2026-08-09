@@ -1,6 +1,7 @@
 ﻿node_modules/
 dist/
 .astro/
+.writing-studio/
 .env
 .env.local
 .env.*.local

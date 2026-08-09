@@ -1,0 +1,228 @@
+---
+import WritingLayout from '../../layouts/WritingLayout.astro';
+import { writingCategories, writings } from '../../data/writings';
+
+const averageReadingTime = Math.round(writings.reduce((total, writing) => total + writing.readingMinutes, 0) / writings.length);
+---
+
+<WritingLayout
+  title="Escritos y estudios — Cristian Echeverry"
+  description="Bitácora de ingeniería de Cristian Echeverry: estudios, notas técnicas y aprendizajes sobre desarrollo web, producto, IA y experiencias digitales."
+>
+  <main class="journal-index">
+    <section class="journal-hero">
+      <div class="journal-hero-copy">
+        <div class="journal-eyebrow"><span></span> KNOWLEDGE LOG / 2026</div>
+        <h1>ESCRITOS<br /><em>& ESTUDIOS</em></h1>
+        <p>Una bitácora para documentar preguntas, decisiones técnicas y aprendizajes mientras construyo productos digitales.</p>
+        <div class="journal-principle"><span>01</span><p><strong>La idea:</strong> convertir cada proyecto en conocimiento reutilizable, no solo en una captura final.</p></div>
+      </div>
+
+      <div class="journal-terminal" aria-label="Estado de la bitácora">
+        <div class="terminal-top"><span></span><span></span><span></span><small>cde571/journal.log</small></div>
+        <div class="terminal-body">
+          <p><b>$</b> journal --status</p>
+          <p><i>✓</i> {writings.length} textos disponibles</p>
+          <p><i>✓</i> {writingCategories.length - 1} líneas de estudio</p>
+          <p><i>✓</i> {averageReadingTime} min de lectura promedio</p>
+          <p class="terminal-cursor"><b>›</b> documentación en progreso<span>_</span></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="journal-library" aria-labelledby="library-title">
+      <div class="library-head">
+        <div>
+          <span>ARCHIVO_01</span>
+          <h2 id="library-title">TODOS LOS ESCRITOS</h2>
+        </div>
+        <p id="writingResultCount">{writings.length} textos encontrados</p>
+      </div>
+
+      <div class="journal-toolbar">
+        <label class="journal-search">
+          <i data-feather="search" aria-hidden="true"></i>
+          <span class="sr-only">Buscar escritos</span>
+          <input type="search" id="writingSearch" placeholder="Buscar por tema, tecnología o palabra..." autocomplete="off" />
+          <kbd>ESC</kbd>
+        </label>
+        <div class="journal-filters" aria-label="Filtrar escritos por categoría">
+          {writingCategories.map((category, index) => (
+            <button type="button" class:list={[{ 'is-active': index === 0 }]} data-writing-filter={category} aria-pressed={index === 0 ? 'true' : 'false'}>{category}</button>
+          ))}
+        </div>
+      </div>
+
+      <div class="journal-list" id="writingList">
+        {writings.map((writing, index) => (
+          <article
+            class="journal-card"
+            style={`--card-accent:${writing.accent}`}
+            data-writing-card
+            data-category={writing.category}
+            data-search={`${writing.title} ${writing.excerpt} ${writing.category} ${writing.tags.join(' ')}`}
+          >
+            <div class="journal-card-index">{String(index + 1).padStart(2, '0')}</div>
+            <div class="journal-card-main">
+              {writing.image ? (
+                <div class="journal-card-visual">
+                  <img src={writing.image} alt={writing.imageAlt ?? ''} loading="lazy" decoding="async" />
+                  <span>3D / DEFENSE LAB</span>
+                </div>
+              ) : null}
+              <div class="journal-card-meta">
+                <span>{writing.category}</span><span>•</span><time datetime={writing.date}>{writing.dateLabel}</time><span>•</span><span>{writing.readingMinutes} MIN</span>
+              </div>
+              <h3><a href={`/escritos/${writing.slug}`}>{writing.title}</a></h3>
+              <p>{writing.excerpt}</p>
+              <div class="journal-tags">{writing.tags.map((tag) => <span>{tag}</span>)}</div>
+            </div>
+            <div class="journal-card-action">
+              <span>{writing.status}</span>
+              <a href={`/escritos/${writing.slug}`} aria-label={`Leer ${writing.title}`}><i data-feather="arrow-up-right" aria-hidden="true"></i></a>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="journal-empty" id="writingEmpty" hidden>
+        <span>NO_DATA</span>
+        <p>No hay escritos que coincidan con esa búsqueda.</p>
+        <button type="button" id="clearWritingFilters">Limpiar filtros</button>
+      </div>
+    </section>
+
+    <section class="journal-note">
+      <span>NOTA DEL AUTOR</span>
+      <p>Estos textos están marcados como borradores mientras reviso ejemplos, resultados y fuentes. La bitácora hace visible el proceso, no solo la versión final.</p>
+    </section>
+  </main>
+
+  <script is:inline>
+    (() => {
+      const search = document.getElementById('writingSearch');
+      const cards = Array.from(document.querySelectorAll('[data-writing-card]'));
+      const filters = Array.from(document.querySelectorAll('[data-writing-filter]'));
+      const resultCount = document.getElementById('writingResultCount');
+      const empty = document.getElementById('writingEmpty');
+      const clear = document.getElementById('clearWritingFilters');
+      let active = 'Todos';
+
+      const normalize = (value) => (value || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+      function apply() {
+        const query = normalize(search && search.value);
+        let visible = 0;
+        cards.forEach((card) => {
+          const matchesSearch = !query || normalize(card.dataset.search).includes(query);
+          const matchesCategory = active === 'Todos' || card.dataset.category === active;
+          const show = matchesSearch && matchesCategory;
+          card.hidden = !show;
+          if (show) visible += 1;
+        });
+        if (resultCount) resultCount.textContent = `${visible} ${visible === 1 ? 'texto encontrado' : 'textos encontrados'}`;
+        if (empty) empty.hidden = visible !== 0;
+      }
+
+      filters.forEach((button) => button.addEventListener('click', () => {
+        active = button.dataset.writingFilter || 'Todos';
+        filters.forEach((item) => {
+          const selected = item === button;
+          item.classList.toggle('is-active', selected);
+          item.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        });
+        apply();
+      }));
+
+      search && search.addEventListener('input', apply);
+      search && search.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        search.value = '';
+        apply();
+      });
+
+      clear && clear.addEventListener('click', () => {
+        if (search) search.value = '';
+        active = 'Todos';
+        filters.forEach((item) => {
+          const selected = item.dataset.writingFilter === 'Todos';
+          item.classList.toggle('is-active', selected);
+          item.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        });
+        apply();
+        search && search.focus();
+      });
+    })();
+  </script>
+</WritingLayout>
+
+<style>
+  .journal-index { position: relative; z-index: 1; width: min(1180px, calc(100% - 2rem)); margin: 0 auto; }
+  .journal-hero { min-height: 650px; padding: 7.5rem 0 5rem; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr); align-items: center; gap: 5rem; }
+  .journal-eyebrow { display: flex; align-items: center; gap: .65rem; color: var(--journal-cyan); font: 600 .7rem/1 var(--journal-mono); letter-spacing: .18em; }
+  .journal-eyebrow span { width: 32px; height: 1px; background: currentColor; box-shadow: 0 0 10px currentColor; }
+  .journal-hero h1 { margin-top: 1.35rem; color: var(--journal-text); font: 400 clamp(2.9rem, 7vw, 6.3rem)/1.05 var(--journal-pixel); letter-spacing: -.04em; text-shadow: 0 0 50px rgba(0,245,255,.09); }
+  .journal-hero h1 em { color: transparent; font-style: normal; -webkit-text-stroke: 1px var(--journal-pink); text-shadow: 0 0 22px rgba(255,43,214,.18); }
+  .journal-hero-copy > p { max-width: 720px; margin-top: 1.8rem; color: var(--journal-muted); font-size: 1.08rem; line-height: 1.8; }
+  .journal-principle { max-width: 650px; margin-top: 2rem; display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: start; padding: 1rem; border-left: 2px solid var(--journal-cyan); background: rgba(0,245,255,.035); }
+  .journal-principle span { color: var(--journal-cyan); font: 600 .7rem/1.6 var(--journal-mono); }
+  .journal-principle p { color: var(--journal-muted); font: 400 .85rem/1.7 var(--journal-mono); }
+  .journal-principle strong { color: var(--journal-text); }
+  .journal-terminal { border: 1px solid rgba(0,245,255,.28); border-radius: 14px; overflow: hidden; background: rgba(7,12,20,.88); box-shadow: 18px 20px 0 rgba(0,245,255,.035), 0 24px 80px rgba(0,0,0,.35); transform: rotate(1.2deg); }
+  .terminal-top { height: 42px; padding: 0 .85rem; display: flex; align-items: center; gap: .42rem; border-bottom: 1px solid var(--journal-line); background: rgba(255,255,255,.035); }
+  .terminal-top > span { width: 8px; height: 8px; border-radius: 50%; background: #ff5f57; }
+  .terminal-top > span:nth-child(2) { background: #ffbd2e; }
+  .terminal-top > span:nth-child(3) { background: #28c840; }
+  .terminal-top small { margin-left: auto; color: var(--journal-muted); font: 500 .62rem/1 var(--journal-mono); }
+  .terminal-body { padding: 1.3rem; min-height: 245px; color: var(--journal-muted); font: 500 .76rem/2 var(--journal-mono); }
+  .terminal-body b { color: var(--journal-pink); }
+  .terminal-body i { color: var(--journal-lime); font-style: normal; }
+  .terminal-body .terminal-cursor { margin-top: 1.2rem; color: var(--journal-text); }
+  .terminal-cursor span { color: var(--journal-cyan); animation: cursorBlink 900ms steps(1) infinite; }
+  @keyframes cursorBlink { 50% { opacity: 0; } }
+  .journal-library { padding: 4rem 0 2rem; }
+  .library-head { display: flex; align-items: end; justify-content: space-between; gap: 2rem; padding-bottom: 1.3rem; border-bottom: 1px solid var(--journal-line); }
+  .library-head span { color: var(--journal-pink); font: 600 .65rem/1 var(--journal-mono); letter-spacing: .15em; }
+  .library-head h2 { margin-top: .7rem; color: var(--journal-text); font: 400 clamp(1.35rem, 3vw, 2.2rem)/1.4 var(--journal-pixel); }
+  .library-head > p { color: var(--journal-muted); font: 500 .72rem/1 var(--journal-mono); }
+  .journal-toolbar { margin: 1.4rem 0 1.2rem; display: flex; align-items: center; gap: 1rem; }
+  .journal-search { min-width: 300px; flex: 1; height: 48px; display: flex; align-items: center; gap: .7rem; padding: 0 .85rem; border: 1px solid var(--journal-line); border-radius: 10px; background: rgba(255,255,255,.025); color: var(--journal-muted); }
+  .journal-search:focus-within { border-color: rgba(0,245,255,.55); box-shadow: 0 0 0 3px rgba(0,245,255,.06); }
+  .journal-search input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--journal-text); font: 500 .77rem/1 var(--journal-mono); }
+  .journal-search input::placeholder { color: #657188; }
+  .journal-search kbd { padding: .25rem .35rem; border: 1px solid var(--journal-line); border-radius: 5px; color: #657188; font: 600 .55rem/1 var(--journal-mono); }
+  .journal-filters { display: flex; gap: .45rem; }
+  .journal-filters button { height: 42px; padding: 0 .8rem; border: 1px solid var(--journal-line); border-radius: 9px; background: rgba(255,255,255,.025); color: var(--journal-muted); cursor: pointer; font: 600 .68rem/1 var(--journal-mono); transition: border-color 150ms ease, color 150ms ease, background 150ms ease; }
+  .journal-filters button:hover, .journal-filters button.is-active { border-color: rgba(0,245,255,.5); color: var(--journal-cyan); background: rgba(0,245,255,.07); }
+  .journal-list { display: grid; gap: .85rem; }
+  .journal-card { position: relative; display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 1.1rem; padding: 1.3rem; border: 1px solid var(--journal-line); border-radius: 14px; background: linear-gradient(110deg, rgba(18,25,39,.82), rgba(10,15,24,.68)); transition: transform 170ms ease, border-color 170ms ease, background 170ms ease; }
+  .journal-card::before { content: ""; position: absolute; left: -1px; top: 20%; bottom: 20%; width: 2px; background: var(--card-accent); box-shadow: 0 0 14px var(--card-accent); }
+  .journal-card:hover { transform: translateX(5px); border-color: color-mix(in srgb, var(--card-accent) 45%, transparent); background: linear-gradient(110deg, color-mix(in srgb, var(--card-accent) 8%, #121927), rgba(10,15,24,.78)); }
+  .journal-card-index { color: var(--card-accent); font: 400 .85rem/1.3 var(--journal-pixel); }
+  .journal-card-visual { position: relative; width: min(100%, 760px); aspect-ratio: 16 / 7; margin-bottom: 1rem; overflow: hidden; border: 1px solid color-mix(in srgb, var(--card-accent) 35%, transparent); border-radius: 11px; background: #05080d; }
+  .journal-card-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,11,18,.7), transparent 58%); pointer-events: none; }
+  .journal-card-visual img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform 650ms cubic-bezier(.2,.8,.2,1); }
+  .journal-card:hover .journal-card-visual img { transform: scale(1.045); }
+  .journal-card-visual span { position: absolute; z-index: 1; right: .65rem; bottom: .6rem; color: var(--card-accent); font: 600 .53rem/1 var(--journal-mono); letter-spacing: .1em; }
+  .journal-card-meta { display: flex; flex-wrap: wrap; gap: .5rem; color: var(--card-accent); font: 600 .61rem/1.3 var(--journal-mono); letter-spacing: .08em; text-transform: uppercase; }
+  .journal-card-meta span:nth-child(even) { color: #4c5870; }
+  .journal-card h3 { margin-top: .65rem; }
+  .journal-card h3 a { color: var(--journal-text); text-decoration: none; font-size: clamp(1.05rem, 2vw, 1.35rem); line-height: 1.35; }
+  .journal-card-main > p { max-width: 780px; margin-top: .55rem; color: var(--journal-muted); font-size: .86rem; line-height: 1.65; }
+  .journal-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem; }
+  .journal-tags span { color: #78869c; font: 500 .6rem/1 var(--journal-mono); }
+  .journal-tags span::before { content: "#"; color: var(--card-accent); }
+  .journal-card-action { display: flex; flex-direction: column; align-items: end; justify-content: space-between; gap: 1rem; }
+  .journal-card-action > span { padding: .32rem .45rem; border: 1px solid rgba(245,158,11,.3); border-radius: 999px; color: #fbbf24; background: rgba(245,158,11,.07); font: 700 .52rem/1 var(--journal-mono); text-transform: uppercase; }
+  .journal-card-action a { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid var(--journal-line); border-radius: 9px; color: var(--card-accent); }
+  .journal-empty { padding: 4rem 1rem; border: 1px dashed var(--journal-line); text-align: center; color: var(--journal-muted); }
+  .journal-empty span { color: var(--journal-pink); font: 400 .7rem/1 var(--journal-pixel); }
+  .journal-empty p { margin-top: 1rem; }
+  .journal-empty button { margin-top: 1rem; border: 0; background: transparent; color: var(--journal-cyan); cursor: pointer; font: 600 .72rem/1 var(--journal-mono); }
+  .journal-note { margin-top: 4rem; padding: 1.5rem; border: 1px solid rgba(140,255,0,.2); border-radius: 14px; background: rgba(140,255,0,.035); display: grid; grid-template-columns: auto 1fr; gap: 1.4rem; }
+  .journal-note span { color: var(--journal-lime); font: 400 .6rem/1.6 var(--journal-pixel); }
+  .journal-note p { color: var(--journal-muted); font-size: .88rem; line-height: 1.7; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  @media (max-width: 900px) { .journal-hero { min-height: auto; grid-template-columns: 1fr; gap: 3rem; padding-top: 5rem; } .journal-terminal { max-width: 560px; transform: none; } .journal-toolbar { align-items: stretch; flex-direction: column; } .journal-filters { overflow-x: auto; padding-bottom: .25rem; } }
+  @media (max-width: 620px) { .journal-hero h1 { font-size: clamp(2.25rem, 12vw, 3.4rem); } .library-head { align-items: flex-start; flex-direction: column; } .journal-search { min-width: 0; width: 100%; } .journal-card { grid-template-columns: 36px minmax(0, 1fr); padding: 1rem; } .journal-card-action { grid-column: 2; flex-direction: row; align-items: center; } .journal-note { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,430 @@
+[
+  {
+    "slug": "analisis-defensivo-extraccion-credenciales-wifi",
+    "title": "Análisis técnico y defensivo de herramientas de extracción de credenciales Wi‑Fi",
+    "excerpt": "Estudio estático de dos muestras que recopilan perfiles Wi‑Fi guardados, sus mecanismos de exfiltración, evidencias y medidas de respuesta.",
+    "abstract": "Este estudio diferencia recuperación legítima, auditoría inalámbrica y robo de credenciales mediante el análisis estático de dos proyectos presentados como educativos. El foco está en comprender su comportamiento, reconocer indicadores y diseñar controles defensivos sin ejecutar funciones de extracción, envío u ocultamiento.",
+    "category": "Estudio",
+    "status": "En revisión",
+    "date": "2026-08-08",
+    "dateLabel": "8 AGO 2026",
+    "readingMinutes": 18,
+    "tags": ["Ciberseguridad", "Wi‑Fi", "Threat Analysis", "Windows", "Linux"],
+    "accent": "#00f5ff",
+    "image": "/writings/wifi-credential-defense-3d.webp",
+    "imageAlt": "Bóveda digital tridimensional protegida por un escudo y ondas Wi‑Fi de color cian",
+    "sections": [
+      {
+        "id": "resumen-ejecutivo",
+        "title": "01. Resumen ejecutivo",
+        "body": [
+          "Este estudio analiza dos proyectos presentados como herramientas educativas para recuperar contraseñas Wi‑Fi: una implementación en Batch para Windows asociada a WiFi-Stealer y una implementación en Python denominada WifiPassword-Stealer.",
+          "Aunque emplean componentes legítimos del sistema operativo, su diseño excede una recuperación local convencional: recopilan múltiples credenciales y contienen mecanismos para enviarlas a infraestructura externa, ocultar la ejecución o eliminar rastros.",
+          "No descifran redes inalámbricas cercanas ni vulneran directamente WPA o WPA2. Aprovechan el acceso que un equipo ya posee a perfiles guardados y recuperan el material almacenado por Windows o Linux. Cuando se ejecutan sin autorización, su comportamiento corresponde a software de extracción y posible exfiltración de credenciales."
+        ],
+        "note": "La etiqueta “educativo” no modifica el comportamiento técnico del programa ni autoriza su uso sobre sistemas de terceros."
+      },
+      {
+        "id": "objetivo-y-alcance",
+        "title": "02. Objetivo y alcance",
+        "body": [
+          "El análisis se realizó de forma estática sobre el código y la documentación proporcionados. No se probaron funciones de envío, ocultamiento, eliminación ni acceso a credenciales reales. Este enfoque evita exponer contraseñas o generar tráfico de exfiltración."
+        ],
+        "bullets": [
+          "Identificar qué información buscan y qué componentes del sistema utilizan.",
+          "Determinar cómo almacenan o transmiten los resultados.",
+          "Reconocer mecanismos de ocultamiento, limitaciones y fallos técnicos.",
+          "Documentar evidencias, medidas de contención y prevención."
+        ]
+      },
+      {
+        "id": "recuperacion-auditoria-y-robo",
+        "title": "03. Recuperación, auditoría y robo de credenciales",
+        "body": [
+          "La recuperación legítima suele limitarse a una red concreta, se realiza con conocimiento del propietario y mantiene el resultado en el dispositivo. Una auditoría inalámbrica evalúa la configuración del punto de acceso dentro de un entorno autorizado.",
+          "Un stealer actúa sobre el dispositivo y facilita que los secretos salgan de él. La diferencia no depende del lenguaje utilizado, sino del alcance, el consentimiento y el tratamiento posterior de los datos."
+        ],
+        "bullets": [
+          "Recolección masiva de perfiles y claves almacenadas.",
+          "Extracción de material de clave en texto claro.",
+          "Envío a webhooks o servidores SMTP.",
+          "Ejecución oculta y borrado de archivos temporales.",
+          "Instrucciones orientadas a una supuesta “máquina objetivo”."
+        ]
+      },
+      {
+        "id": "muestra-batch-windows",
+        "title": "04. Muestra Batch para Windows",
+        "body": [
+          "El script prepara una carpeta temporal, configura un archivo de resultados y controla mediante variables si intentará subir la información o borrarse al finalizar.",
+          "El núcleo de la recolección utiliza la herramienta administrativa netsh para exportar perfiles inalámbricos ya guardados. Después procesa los XML y busca el nombre del perfil y el material de clave. El programa también genera un VBScript para representar determinados valores en hexadecimal.",
+          "La conversión hexadecimal no es cifrado; solamente constituye codificación u ofuscación elemental. Cuando la opción de subida está activa, el contenido del archivo puede enviarse mediante una solicitud HTTP a un webhook, convirtiendo una consulta local en un mecanismo de exfiltración.",
+          "La ejecución oculta y el autoborrado buscan reducir la visibilidad, pero no eliminan telemetría, registros de procesos, resolución DNS, conexiones de red, artefactos temporales ni evidencias del sistema de seguridad."
+        ],
+        "bullets": [
+          "Rutas y variables frágiles ante espacios o caracteres especiales.",
+          "Carpeta temporal predecible y procesamiento XML basado en texto.",
+          "Problemas potenciales con Unicode y símbolos especiales.",
+          "Ocultamiento y borrado dependientes de que todo el flujo termine correctamente.",
+          "Credenciales temporalmente expuestas en texto claro."
+        ]
+      },
+      {
+        "id": "muestra-python",
+        "title": "05. Implementación en Python",
+        "body": [
+          "La segunda muestra divide su comportamiento según el sistema operativo. En Windows consulta perfiles mediante netsh; en Linux intenta leer configuraciones de NetworkManager. Los resultados se agregan a un archivo temporal y posteriormente se incorporan al cuerpo de un correo SMTP.",
+          "En Windows, el análisis depende de palabras específicas en inglés. Esto puede fallar en instalaciones configuradas en español u otros idiomas y asociar información incorrecta cuando existen múltiples perfiles.",
+          "En Linux, los perfiles suelen requerir privilegios elevados. La construcción de comandos de shell a partir de nombres de archivo y el uso de shell=True amplían el riesgo de interpretación no deseada.",
+          "El flujo SMTP analizado no activa cifrado de transporte de forma explícita antes de autenticarse. Un fallo de red también puede dejar el archivo temporal en el disco."
+        ],
+        "bullets": [
+          "Dependencia del idioma de la salida del sistema.",
+          "Bloques de error que silencian fallos importantes.",
+          "Intentos de cierre o borrado que pueden no afectar al proceso correcto.",
+          "Almacenamiento y transmisión de información sensible en texto claro.",
+          "Supuestas capacidades de evasión que no garantizan eludir controles modernos."
+        ]
+      },
+      {
+        "id": "comparacion",
+        "title": "06. Comparación de las muestras",
+        "body": [
+          "Ambos programas dependen de credenciales que ya se encuentran almacenadas en el dispositivo. Ninguno obtiene por sí mismo la contraseña de redes desconocidas que simplemente están al alcance de la antena."
+        ],
+        "bullets": [
+          "Batch / Windows: perfiles XML, archivo creds.txt y salida mediante webhook HTTP.",
+          "Python / Windows y Linux: salida textual de netsh o perfiles de NetworkManager, archivo Informations.txt y correo SMTP.",
+          "Ambos: ejecución discreta, intentos de borrado y ausencia de cifrado real en el flujo principal.",
+          "Riesgo común: recolección masiva y salida de datos previamente confiados al dispositivo."
+        ]
+      },
+      {
+        "id": "indicadores-de-compromiso",
+        "title": "07. Indicadores de compromiso",
+        "body": [
+          "Un indicador aislado no demuestra una infección porque varias utilidades involucradas son legítimas. La combinación temporal de procesos, archivos y conexiones sí puede justificar una investigación."
+        ],
+        "bullets": [
+          "Windows: uso repetido de netsh para numerosos perfiles y exportación con material de clave visible.",
+          "Windows: creación de carpetas profiles, archivos creds.txt, Informations.txt o scripts VBScript en ubicaciones temporales.",
+          "Windows: PowerShell enviando datos a webhooks o conexiones SMTP salientes por puertos alternativos.",
+          "Windows: aparición y desaparición rápida de múltiples XML de perfiles inalámbricos.",
+          "Linux: acceso inusual y masivo a /etc/NetworkManager/system-connections/ seguido de tráfico SMTP.",
+          "Linux: creación y eliminación de archivos de información o uso inesperado de herramientas de atributos."
+        ]
+      },
+      {
+        "id": "impacto",
+        "title": "08. Impacto de una exposición",
+        "body": [
+          "Una contraseña Wi‑Fi comprometida puede permitir conexiones no autorizadas, consumo de recursos, exploración de servicios internos mal configurados o intentos contra otros dispositivos. El impacto aumenta cuando la misma contraseña se reutiliza en cuentas personales.",
+          "Los SSID también revelan información sobre lugares, empresas, instituciones o relaciones entre dispositivos. El uso de webhooks o correo introduce una segunda exposición porque los datos pueden quedar registrados en proveedores externos, servidores intermedios y sistemas de monitoreo."
+        ]
+      },
+      {
+        "id": "deteccion-y-prevencion",
+        "title": "09. Detección y prevención",
+        "body": [
+          "La defensa efectiva combina protección del dispositivo, privilegios mínimos, monitoreo de comandos y control del tráfico saliente con una configuración segura de la red inalámbrica."
+        ],
+        "bullets": [
+          "Mantener protección en tiempo real, antimanipulación y actualizaciones activas.",
+          "Evitar ejecutar archivos Batch, PowerShell, Python o binarios sin verificar su procedencia.",
+          "Registrar procesos y líneas de comandos en entornos administrados.",
+          "Supervisar usos anómalos de netsh, PowerShell, cscript.exe y Python.",
+          "Restringir webhooks y conexiones SMTP salientes que no sean necesarias.",
+          "Usar WPA2-AES o WPA3, desactivar WPS y mantener el firmware del router actualizado.",
+          "Utilizar una contraseña Wi‑Fi larga, aleatoria y no reutilizada."
+        ]
+      },
+      {
+        "id": "respuesta-ante-incidente",
+        "title": "10. Respuesta ante una posible ejecución",
+        "body": [
+          "Si existe una sospecha razonable, debe asumirse que las claves guardadas pudieron salir del dispositivo. La prioridad es contener, cambiar secretos desde un equipo limpio y conservar evidencia antes de eliminar artefactos."
+        ],
+        "bullets": [
+          "1. Desconectar temporalmente el equipo afectado de la red.",
+          "2. Desde otro dispositivo limpio, proteger primero el correo principal.",
+          "3. Cambiar la contraseña Wi‑Fi y las credenciales administrativas del router.",
+          "4. Cambiar cualquier contraseña reutilizada y cerrar sesiones activas.",
+          "5. Revisar recuperación de cuentas y habilitar autenticación multifactor.",
+          "6. Ejecutar un examen completo y un examen sin conexión del sistema.",
+          "7. Revisar inicio automático, tareas programadas, descargas y conexiones recientes.",
+          "8. Preservar evidencia si se requiere una investigación formal."
+        ]
+      },
+      {
+        "id": "laboratorio-seguro",
+        "title": "11. Propuesta de laboratorio educativo seguro",
+        "body": [
+          "El comportamiento puede estudiarse sin acceder a contraseñas reales. Un laboratorio seguro emplea una máquina virtual desechable, una instantánea previa, conectividad externa bloqueada y datos completamente ficticios.",
+          "En lugar de consultar perfiles reales, pueden utilizarse XML de muestra con nombres y claves inventados. Los componentes de webhook o SMTP deben sustituirse por funciones que escriban eventos simulados en una consola local."
+        ],
+        "bullets": [
+          "Observar el procesamiento y los archivos temporales sin recopilar secretos.",
+          "Crear reglas de detección sobre eventos simulados.",
+          "Comprobar qué registra el sistema y qué controles bloquean el flujo.",
+          "No utilizar equipos de terceros, credenciales reales ni servicios públicos de recepción."
+        ],
+        "note": "El objetivo del laboratorio es defensivo: validar telemetría y controles, no reproducir una exfiltración real."
+      },
+      {
+        "id": "conclusiones",
+        "title": "12. Conclusiones",
+        "body": [
+          "Las muestras demuestran que un programa pequeño puede extraer información sensible cuando el usuario lo ejecuta y el sistema le concede acceso. El riesgo no depende de romper el cifrado inalámbrico, sino de abusar de funciones administrativas legítimas dentro del contexto del usuario.",
+          "La muestra Batch contiene capacidades claras de recolección, webhook, ocultamiento y autoborrado. La muestra Python extiende el concepto a SMTP y a una rama para Linux, aunque su implementación es frágil y dependiente del entorno.",
+          "La principal enseñanza defensiva es combinar precaución al abrir archivos, privilegios mínimos, monitoreo de comandos, control del tráfico saliente, contraseñas únicas y una respuesta rápida desde un dispositivo limpio."
+        ],
+        "note": "Este informe tiene fines de análisis defensivo y concientización. No autoriza la ejecución de estas herramientas en dispositivos o redes sin consentimiento previo y verificable."
+      }
+    ]
+  },
+  {
+    "slug": "organizar-un-portfolio-con-89-repositorios",
+    "title": "Cómo organizar un portfolio con 89 repositorios",
+    "excerpt": "Un estudio práctico sobre selección, evidencia visual y arquitectura de información para convertir volumen de trabajo en una historia comprensible.",
+    "abstract": "Tener muchos repositorios demuestra constancia, pero no explica por sí solo qué problemas se resolvieron. Este borrador documenta el sistema usado para separar proyectos destacados, catálogo técnico y evidencia visual dentro del portfolio.",
+    "category": "Estudio",
+    "status": "Borrador",
+    "date": "2026-08-08",
+    "dateLabel": "8 AGO 2026",
+    "readingMinutes": 7,
+    "tags": [
+      "Portfolio",
+      "UX",
+      "GitHub",
+      "Arquitectura de información"
+    ],
+    "accent": "#ff4d00",
+    "sections": [
+      {
+        "id": "contexto",
+        "title": "01. Contexto",
+        "body": [
+          "Un perfil con 89 repositorios contiene mucha evidencia, pero también genera una decisión difícil: mostrarlo todo puede saturar; mostrar muy poco puede ocultar el alcance real del trabajo.",
+          "El objetivo de esta reorganización fue construir dos velocidades de lectura. La primera permite entender el perfil en menos de un minuto. La segunda deja explorar el inventario completo sin abandonar el portfolio."
+        ]
+      },
+      {
+        "id": "pregunta",
+        "title": "02. Pregunta de estudio",
+        "body": [
+          "¿Cómo convertir un conjunto grande y heterogéneo de repositorios en una narrativa profesional que conserve el detalle técnico, muestre evidencia real y siga siendo fácil de navegar?"
+        ],
+        "note": "Hipótesis de trabajo: la selección debe explicar capacidad; el archivo debe demostrar continuidad."
+      },
+      {
+        "id": "metodo",
+        "title": "03. Método",
+        "body": [
+          "Se separó la información en tres capas. Cada capa responde una pregunta distinta del visitante y evita que todas las tarjetas compitan con la misma intensidad."
+        ],
+        "bullets": [
+          "Destacados: doce proyectos con variedad visual y técnica para una lectura rápida.",
+          "Catálogo: 82 proyectos organizados en un archivo buscable por nombre, lenguaje y categoría.",
+          "Evidencia: 28 capturas reales generadas al ejecutar localmente los proyectos incorporados."
+        ]
+      },
+      {
+        "id": "decisiones",
+        "title": "04. Decisiones de diseño",
+        "body": [
+          "La portada privilegia proyectos con una imagen clara, una descripción corta y acceso directo. El catálogo completo vive dentro de un panel secundario: sigue disponible, pero no interrumpe la narrativa principal.",
+          "Las etiquetas de repositorio privado se mantienen visibles. Así se comunica que existe trabajo adicional sin prometer acceso público al código. La captura funciona como evidencia del producto y no como sustituto de una demostración funcional."
+        ]
+      },
+      {
+        "id": "aprendizajes",
+        "title": "05. Aprendizajes provisionales",
+        "body": [
+          "La cantidad es útil como contexto, pero la jerarquía es la que permite interpretar esa cantidad. Un portfolio fuerte no es un espejo de GitHub: es una edición intencional de su contenido."
+        ],
+        "bullets": [
+          "Una selección pequeña necesita explicar por qué cada pieza importa.",
+          "El inventario completo debe poder buscarse, no recorrerse únicamente con scroll.",
+          "Las imágenes reales aumentan la credibilidad cuando el código no es público.",
+          "Cada cifra debe distinguir entre repositorios totales, catalogados y destacados."
+        ]
+      },
+      {
+        "id": "siguiente",
+        "title": "06. Próxima iteración",
+        "body": [
+          "El siguiente paso es transformar los mejores proyectos en casos de estudio individuales: problema, restricciones, decisiones, arquitectura, resultados y aprendizajes. Este texto permanecerá como borrador hasta revisar esa evidencia proyecto por proyecto."
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "label": "Nueva fuente",
+        "href": "https://"
+      }
+    ]
+  },
+  {
+    "slug": "scroll-cinematografico-sin-perder-accesibilidad",
+    "title": "Scroll cinematográfico sin perder accesibilidad",
+    "excerpt": "Notas sobre movimiento, legibilidad y reducción de animaciones al diseñar experiencias web que dependen del desplazamiento.",
+    "abstract": "Una interfaz puede sentirse cinematográfica sin convertir el scroll en un obstáculo. Este estudio reúne criterios para que las animaciones acompañen el contenido, respeten preferencias del sistema y fallen de forma segura.",
+    "category": "Nota técnica",
+    "status": "Borrador",
+    "date": "2026-08-08",
+    "dateLabel": "8 AGO 2026",
+    "readingMinutes": 6,
+    "tags": [
+      "Motion",
+      "Accesibilidad",
+      "CSS",
+      "Rendimiento"
+    ],
+    "accent": "#ff2bd6",
+    "sections": [
+      {
+        "id": "principio",
+        "title": "01. El principio",
+        "body": [
+          "El movimiento debe reforzar la jerarquía, explicar una transición o aportar orientación espacial. Cuando una animación reduce contraste, bloquea contenido o exige precisión motora, deja de ser una ayuda y se convierte en deuda de experiencia."
+        ],
+        "note": "Regla de trabajo: si el JavaScript no carga, el contenido principal todavía debe poder leerse y recorrerse."
+      },
+      {
+        "id": "riesgos",
+        "title": "02. Riesgos frecuentes",
+        "body": [
+          "Los efectos ligados al scroll suelen fallar por acumulación. Un poco de desenfoque, escala, opacidad y parallax puede parecer sutil de forma aislada, pero en conjunto perjudica la lectura y aumenta el trabajo de renderizado."
+        ],
+        "bullets": [
+          "Ocultar secciones con opacidad antes de que el observador se inicialice.",
+          "Usar filtros de desenfoque en áreas grandes durante todo el desplazamiento.",
+          "Mover el contenido principal a una velocidad distinta del gesto del usuario.",
+          "No ofrecer una versión estable para prefers-reduced-motion."
+        ]
+      },
+      {
+        "id": "capas",
+        "title": "03. Diseñar por capas",
+        "body": [
+          "La capa base debe contener todo el texto, enlaces y controles en su posición final. Sobre ella se añaden microtransiciones con transform y opacity. Los efectos decorativos —partículas, brillos o líneas— deben vivir detrás del contenido y no interceptar eventos.",
+          "Esta separación permite eliminar una capa completa cuando causa problemas, sin reconstruir la página ni perder información."
+        ]
+      },
+      {
+        "id": "presupuesto",
+        "title": "04. Presupuesto de movimiento",
+        "body": [
+          "Conviene definir un presupuesto antes de animar: cuántos elementos se mueven a la vez, qué propiedades cambian y cuánto dura el efecto. Para contenido editorial, una señal principal por sección suele ser suficiente."
+        ],
+        "bullets": [
+          "Priorizar transform y opacity para transiciones breves.",
+          "Evitar listeners de scroll que recalculen estilos sin requestAnimationFrame.",
+          "Detener animaciones fuera del viewport cuando sea posible.",
+          "Comprobar navegación por teclado y lectura con zoom antes de pulir efectos."
+        ]
+      },
+      {
+        "id": "validacion",
+        "title": "05. Lista de validación",
+        "body": [
+          "La experiencia debe probarse en móvil, con teclado, con reducción de movimiento y con JavaScript desactivado cuando la arquitectura lo permita. También se debe comprobar que la altura del documento no quede limitada accidentalmente por overflow o height."
+        ]
+      },
+      {
+        "id": "conclusion",
+        "title": "06. Conclusión provisional",
+        "body": [
+          "La sensación cinematográfica no viene de mover todo. Viene de elegir un momento, conservar una lectura estable y usar el movimiento como puntuación visual. Este borrador se actualizará con mediciones comparativas en una próxima revisión."
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "label": "MDN — prefers-reduced-motion",
+        "href": "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion"
+      },
+      {
+        "label": "W3C WAI — Animations from Interactions",
+        "href": "https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html"
+      }
+    ]
+  },
+  {
+    "slug": "del-prototipo-visual-a-producto-saas",
+    "title": "Del prototipo visual a un producto SaaS",
+    "excerpt": "Un marco de trabajo para pasar de una interfaz convincente a un producto con estados, datos, seguridad y operaciones reales.",
+    "abstract": "El salto entre demo y producto no consiste en añadir más pantallas. Consiste en hacer explícitos los estados, contratos y riesgos que la demostración visual podía ignorar. Este borrador propone una ruta de maduración por etapas.",
+    "category": "Ensayo",
+    "status": "Borrador",
+    "date": "2026-08-08",
+    "dateLabel": "8 AGO 2026",
+    "readingMinutes": 8,
+    "tags": [
+      "SaaS",
+      "Producto",
+      "Arquitectura",
+      "IA"
+    ],
+    "accent": "#8cff00",
+    "sections": [
+      {
+        "id": "demo-producto",
+        "title": "01. Demo y producto resuelven preguntas distintas",
+        "body": [
+          "Una demo responde si la propuesta se entiende y si la interacción resulta atractiva. Un producto debe responder además qué ocurre cuando la red falla, el usuario no tiene permisos, el pago cambia de estado o una operación se repite.",
+          "La calidad visual sigue siendo importante, pero ya no puede ocultar los estados intermedios y los límites del sistema."
+        ]
+      },
+      {
+        "id": "inventario",
+        "title": "02. Inventario de estados",
+        "body": [
+          "Antes de conectar servicios conviene enumerar estados por flujo. Para un registro, por ejemplo: vacío, validación local, envío, error recuperable, cuenta existente, verificación pendiente y sesión iniciada."
+        ],
+        "note": "Una pantalla terminada no significa un flujo terminado. El flujo incluye todas sus respuestas posibles."
+      },
+      {
+        "id": "contratos",
+        "title": "03. Contratos antes que componentes",
+        "body": [
+          "Los contratos de datos definen qué espera la interfaz y qué garantiza el backend. Nombrar campos, errores y permisos temprano reduce parches posteriores y permite probar cada capa por separado."
+        ],
+        "bullets": [
+          "Definir entradas y salidas por operación.",
+          "Separar mensajes para usuario de detalles internos de error.",
+          "Acordar quién puede leer, crear, editar y eliminar cada recurso.",
+          "Registrar qué operaciones deben ser idempotentes."
+        ]
+      },
+      {
+        "id": "vertical",
+        "title": "04. Construir una rebanada vertical",
+        "body": [
+          "En lugar de terminar todo el frontend y conectar el backend al final, es más útil completar un flujo pequeño de extremo a extremo: interfaz, validación, persistencia, permisos, observabilidad y recuperación de errores.",
+          "Esa rebanada revela pronto las decisiones de arquitectura que se repetirán en el resto del producto."
+        ]
+      },
+      {
+        "id": "ia",
+        "title": "05. Cuando el producto incluye IA",
+        "body": [
+          "La salida de un modelo debe tratarse como una respuesta no determinista. El producto necesita límites de costo, tiempos de espera, validación de formato, rutas de reintento y una forma clara de comunicar incertidumbre."
+        ],
+        "bullets": [
+          "Guardar la intención y la versión del prompt cuando sea relevante.",
+          "Validar estructura antes de mostrar o persistir una respuesta.",
+          "Diseñar una salida útil si el proveedor no está disponible.",
+          "No exponer secretos ni detalles internos en el cliente."
+        ]
+      },
+      {
+        "id": "salida",
+        "title": "06. Criterio de salida",
+        "body": [
+          "Un prototipo empieza a comportarse como producto cuando sus flujos principales son repetibles, observables y recuperables. La siguiente versión de este escrito incorporará un caso concreto con decisiones y resultados verificables."
+        ]
+      }
+    ]
+  }
+]
