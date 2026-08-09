@@ -13,6 +13,7 @@ Portfolio personal de Cristian Echeverry con estética arcade/pixel, construido 
 - Consola arcade interactiva y widget de contacto pixel-art.
 - Bitácora de ingeniería en `/escritos`, con búsqueda, filtros y tres estudios iniciales marcados como borradores.
 - Páginas individuales de lectura con tabla de contenido, progreso, fuentes y navegación entre escritos.
+- Estudio local para crear y editar escritos, generar una vista previa y publicar con un commit desde una interfaz visual.
 
 ## Stack
 
@@ -84,6 +85,21 @@ Astro normalmente abre el proyecto en:
 ```text
 http://localhost:4321
 ```
+
+## CDE Writing Studio
+
+En Windows, abre `RUN_WRITING_STUDIO.cmd` con doble clic. También puedes iniciarlo desde PowerShell:
+
+```powershell
+npm.cmd run studio
+```
+
+El estudio se abre en `http://127.0.0.1:4177/studio/` y funciona únicamente en el equipo local.
+
+- **Guardar borrador** actualiza `src/data/writings.json` y conserva una copia de seguridad local.
+- **Vista previa** compila el portfolio y abre la página real del escrito.
+- **Commit + subir** valida el sitio, crea un commit del archivo de escritos y hace push a la rama activa.
+- Atajos: `Ctrl + S` para guardar y `Ctrl + Enter` para previsualizar.
 
 ## Build de producción
 
