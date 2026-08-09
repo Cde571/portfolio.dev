@@ -11,6 +11,8 @@ Portfolio personal de Cristian Echeverry con estética arcade/pixel, construido 
 - Estadísticas visibles basadas en el perfil público de GitHub, sin contador local falso de visitas.
 - Efectos visuales conservados, pero sin `backdrop-filter` borroso para evitar movimiento visual extraño al hacer scroll.
 - Consola arcade interactiva y widget de contacto pixel-art.
+- Bitácora de ingeniería en `/escritos`, con búsqueda, filtros y tres estudios iniciales marcados como borradores.
+- Páginas individuales de lectura con tabla de contenido, progreso, fuentes y navegación entre escritos.
 
 ## Stack
 
@@ -33,6 +35,7 @@ src/
 │       ├── Stats.astro
 │       ├── Projects.astro
 │       ├── ProjectCard.astro
+│       ├── WritingsPreview.astro
 │       ├── About.astro
 │       ├── GitHubStats.astro
 │       ├── Contact.astro
@@ -40,11 +43,16 @@ src/
 │       ├── PixelChat.astro
 │       └── ScrollIndicator.astro
 ├── data/
-│   └── projects.ts
+│   ├── projects.ts
+│   └── writings.ts
 ├── layouts/
-│   └── Layout.astro
+│   ├── Layout.astro
+│   └── WritingLayout.astro
 └── pages/
-    └── index.astro
+    ├── index.astro
+    └── escritos/
+        ├── index.astro
+        └── [slug].astro
 ```
 
 ## Instalación

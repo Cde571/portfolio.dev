@@ -1,7 +1,13 @@
 ---
-const title = "Cristian Echeverry | Ingeniero de Sistemas Junior · IA & Full-Stack";
-const description =
-	"Portafolio de Cristian Echeverry, estudiante de Ingeniería de Sistemas en últimos semestres con aval para prácticas 2026-2. Proyectos de IA, Python, automatización y desarrollo full-stack.";
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = "Cristian Echeverry | Ingeniero de Sistemas Junior · IA & Full-Stack",
+	description = "Portafolio de Cristian Echeverry, estudiante de Ingeniería de Sistemas en últimos semestres con aval para prácticas 2026-2. Proyectos de IA, Python, automatización y desarrollo full-stack.",
+} = Astro.props;
 ---
 
 <!doctype html>

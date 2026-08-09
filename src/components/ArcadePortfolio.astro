@@ -3,6 +3,7 @@ import Navigation from './astro/Navigation.astro';
 import Hero from './astro/Hero.astro';
 import Stats from './astro/Stats.astro';
 import Projects from './astro/Projects.astro';
+import WritingsPreview from './astro/WritingsPreview.astro';
 import About from './astro/About.astro';
 import GitHubStats from './astro/GitHubStats.astro';
 import Contact from './astro/Contact.astro';
@@ -18,6 +19,7 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
   <Hero />
   <Stats />
   <Projects />
+  <WritingsPreview />
   <About />
   <GitHubStats />
   <Contact />
@@ -258,7 +260,9 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
       // Scroll spy (keeps UI, improves UX)
       const links = Array.from(document.querySelectorAll(".nav-link"));
       const sections = links
-        .map((l) => document.querySelector(l.getAttribute("href")))
+        .map((l) => l.getAttribute("href"))
+        .filter((href) => href && href.startsWith("#"))
+        .map((href) => document.querySelector(href))
         .filter(Boolean);
 
       function setActive(id) {
@@ -4020,5 +4024,3 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
 </script>
 <!-- CDE571 IMMERSIVE SCROLL TRANSITIONS SCRIPT END -->
 </div>
-
-
