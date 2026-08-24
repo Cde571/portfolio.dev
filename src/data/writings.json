@@ -183,8 +183,8 @@
     ]
   },
   {
-    "slug": "organizar-un-portfolio-con-89-repositorios",
-    "title": "Cómo organizar un portfolio con 89 repositorios",
+    "slug": "organizar-un-portfolio-con-56-repositorios",
+    "title": "Cómo organizar un portfolio con 56 repositorios",
     "excerpt": "Un estudio práctico sobre selección, evidencia visual y arquitectura de información para convertir volumen de trabajo en una historia comprensible.",
     "abstract": "Tener muchos repositorios demuestra constancia, pero no explica por sí solo qué problemas se resolvieron. Este borrador documenta el sistema usado para separar proyectos destacados, catálogo técnico y evidencia visual dentro del portfolio.",
     "category": "Estudio",
@@ -204,7 +204,7 @@
         "id": "contexto",
         "title": "01. Contexto",
         "body": [
-          "Un perfil con 89 repositorios contiene mucha evidencia, pero también genera una decisión difícil: mostrarlo todo puede saturar; mostrar muy poco puede ocultar el alcance real del trabajo.",
+          "Un perfil con 56 repositorios contiene mucha evidencia, pero también genera una decisión difícil: mostrarlo todo puede saturar; mostrar muy poco puede ocultar el alcance real del trabajo.",
           "El objetivo de esta reorganización fue construir dos velocidades de lectura. La primera permite entender el perfil en menos de un minuto. La segunda deja explorar el inventario completo sin abandonar el portfolio."
         ]
       },
@@ -223,9 +223,9 @@
           "Se separó la información en tres capas. Cada capa responde una pregunta distinta del visitante y evita que todas las tarjetas compitan con la misma intensidad."
         ],
         "bullets": [
-          "Destacados: doce proyectos con variedad visual y técnica para una lectura rápida.",
-          "Catálogo: 82 proyectos organizados en un archivo buscable por nombre, lenguaje y categoría.",
-          "Evidencia: 28 capturas reales generadas al ejecutar localmente los proyectos incorporados."
+          "Destacados: seis proyectos con variedad visual y técnica para una lectura rápida.",
+          "Catálogo: 56 repositorios organizados en un archivo buscable por nombre, lenguaje y categoría.",
+          "Evidencia: 54 miniaturas locales asociadas a los proyectos documentados."
         ]
       },
       {

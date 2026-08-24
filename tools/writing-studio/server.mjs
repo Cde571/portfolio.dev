@@ -205,7 +205,7 @@ async function gitStatus() {
 }
 
 async function buildPortfolio() {
-  const astroCli = path.join(ROOT_DIR, 'node_modules', 'astro', 'bin', 'astro.mjs');
+  const astroCli = path.join(ROOT_DIR, 'node_modules', 'astro', 'astro.js');
   const result = await run(process.execPath, [astroCli, 'build']);
   if (result.code !== 0) {
     const details = (result.stderr || result.stdout).trim().split(/\r?\n/).slice(-16).join('\n');
@@ -342,7 +342,8 @@ server.listen(PORT, HOST, async () => {
       const studioResponse = await fetch(`${ORIGIN}/studio/`);
       const writingsResponse = await fetch(`${ORIGIN}/api/writings`);
       const writingsPayload = await writingsResponse.json();
-      const previewResponse = await fetch(`${ORIGIN}/escritos/organizar-un-portfolio-con-89-repositorios/`);
+      const previewSlug = writingsPayload.writings?.[0]?.slug;
+      const previewResponse = await fetch(`${ORIGIN}/escritos/${previewSlug}/`);
       const buildResponse = await fetch(`${ORIGIN}/api/build`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Origin: ORIGIN },
