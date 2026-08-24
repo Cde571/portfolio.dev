@@ -5,16 +5,12 @@ import ProjectCard from './ProjectCard.astro';
 const githubReposUrl = 'https://github.com/Cde571?tab=repositories';
 
 const featuredTitles = [
-  'Portfolio Dev',
-  'Sistema Solar 3D',
-  'Scroll Effects',
-  'Food Emotions',
-  'Foodemotions Back',
-  'Bankapp',
-  'Bank Frontend',
-  'World Cup 2026 Frontend',
-  'API Backend World Cup',
   'Jarvis Os',
+  'Flappy Ml',
+  'Foodemotions Back',
+  'Proyecto Sustituto',
+  'CNN Red',
+  'GraphQL Projects',
 ];
 
 const byTitle = new Map(projects.map((project) => [project.title, project]));
@@ -22,8 +18,8 @@ const featuredProjects = featuredTitles
   .map((title) => byTitle.get(title))
   .filter((project): project is Project => Boolean(project));
 
-const fallbackFeatured = projects.filter((project) => !featuredProjects.includes(project)).slice(0, Math.max(0, 10 - featuredProjects.length));
-const showcaseProjects = [...featuredProjects, ...fallbackFeatured].slice(0, 10);
+const fallbackFeatured = projects.filter((project) => !featuredProjects.includes(project)).slice(0, Math.max(0, 6 - featuredProjects.length));
+const showcaseProjects = [...featuredProjects, ...fallbackFeatured].slice(0, 6);
 const archiveProjects = projects;
 const languages = Array.from(new Set(archiveProjects.map((project) => project.language).filter(Boolean))).sort();
 const repoLink = (project: Project) => project.links.find((link) => link.type === 'repo') ?? project.links[0];
@@ -36,7 +32,7 @@ const compactText = (project: Project) => [project.title, project.language, proj
       <span class="showcase-kicker">SELECTED WORK / CDE571</span>
       <h2 class="section-title">PROYECTOS DESTACADOS</h2>
       <p class="projects-subtitle">
-        Selección curada de {showcaseProjects.length} proyectos fuertes. El resto queda en archivo compacto y en GitHub.
+        Seis proyectos de IA, Python y backend que muestran problema, implementación y código. El resto queda disponible en GitHub.
       </p>
     </div>
     <a class="section-link section-link-primary" href={githubReposUrl} target="_blank" rel="noreferrer">
@@ -468,4 +464,3 @@ const compactText = (project: Project) => [project.title, project.language, proj
 }
 /* CDE571 PROJECTS LOCAL MEASURE RESTORE END */
 </style>
-
