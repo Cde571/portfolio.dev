@@ -25,7 +25,9 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
   <PixelChat />
   <ScrollIndicator />
 
-  <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js">
+  <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js"></script>
+
+  <script is:inline>
 
   // ==========================================
   // PROJECTS: filtros, card-click y scroll effects
@@ -129,7 +131,7 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
 
     const colors = ["#00ff00", "#ff00ff", "#00ffff", "#ffff00"];
     const particles = [];
-    const particleCount = 140;
+    const particleCount = window.matchMedia('(max-width: 720px)').matches ? 22 : 56;
 
     function resizeCanvas() {
       if (!canvas || !ctx) return;
@@ -278,7 +280,9 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
       }
 
       window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("hashchange", onScroll);
       onScroll();
+      requestAnimationFrame(onScroll);
     }
 
     // ---------------------------
@@ -352,12 +356,6 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
         if (el) el.addEventListener("click", clickBeep);
       });
 
-      const resumeBtn = document.getElementById("resumeBtn");
-      if (resumeBtn) {
-        resumeBtn.addEventListener("click", () => {
-          window.setTimeout(() => window.open("/resume.pdf", "_blank", "noreferrer"), 80);
-        });
-      }
     }
 
     // ---------------------------
@@ -648,6 +646,30 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
       gap: 1rem;
       align-items: center;
       flex-wrap: wrap;
+    }
+
+    .hero-availability {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-top: 1.25rem;
+      padding: 0.65rem 0.9rem;
+      border: 1px solid rgba(74, 222, 128, 0.28);
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.08);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 0.86rem;
+      line-height: 1.4;
+    }
+
+    .availability-dot {
+      width: 0.62rem;
+      height: 0.62rem;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: #4ade80;
+      box-shadow: 0 0 0 5px rgba(74, 222, 128, 0.12), 0 0 16px rgba(74, 222, 128, 0.55);
     }
 
     .btn {
@@ -3827,6 +3849,10 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
 <!-- CDE571 IMMERSIVE SCROLL TRANSITIONS SCRIPT START -->
 <script is:inline>
   (() => {
+    // La versión para reclutadores prioriza legibilidad estable. El efecto
+    // cinematográfico se conserva en el código, pero no se ejecuta.
+    const enableImmersiveScroll = false;
+    if (!enableImmersiveScroll) return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -3994,8 +4020,5 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
 </script>
 <!-- CDE571 IMMERSIVE SCROLL TRANSITIONS SCRIPT END -->
 </div>
-
-
-
 
 

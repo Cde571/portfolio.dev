@@ -144,7 +144,7 @@ Abrir `http://localhost:4321`.
 
 Esta versión mantiene el modelo visual original y agrega una sección de proyectos más completa:
 
-- 54 repositorios conectados con enlace directo a GitHub.
+- 56 repositorios conectados con enlace directo a GitHub.
 - Botón `Repositorio` corregido para abrir el repo real.
 - Miniatura PNG generada para cada proyecto.
 - Búsqueda y filtros por lenguaje.

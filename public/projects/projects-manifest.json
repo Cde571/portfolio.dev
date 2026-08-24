@@ -1,6 +1,6 @@
 {
   "github_profile": "https://github.com/Cde571?tab=repositories",
-  "repo_cards": 54,
+  "repo_cards": 56,
   "images_generated": 54,
   "features": [
     "fixed repository hrefs",
@@ -11,6 +11,38 @@
     "cover parallax"
   ],
   "repos": [
+    {
+      "name": "foodemotions-showcase",
+      "title": "FoodEmotions Showcase",
+      "slug": "foodemotions-showcase",
+      "language": "HTML",
+      "updated": "Aug 23, 2026",
+      "description": "Showcase publico de producto con demo interactiva, arquitectura, 82 pantallas, 45 componentes y 85 pruebas verificadas.",
+      "category": "Product / Full-Stack",
+      "tags": [
+        "Product",
+        "Full-Stack",
+        "AI",
+        "Testing"
+      ],
+      "url": "https://github.com/Cde571/foodemotions-showcase",
+      "image": "/projects/covers/food-emotions.webp"
+    },
+    {
+      "name": "devfolios-explorer",
+      "title": "Devfolios Explorer",
+      "slug": "devfolios-explorer",
+      "language": "Astro",
+      "updated": "Aug 10, 2026",
+      "description": "Galeria visual de portafolios de desarrolladores construida con Astro para descubrir, comparar y explorar perfiles tecnicos.",
+      "category": "Web / Frontend",
+      "tags": [
+        "Astro",
+        "Frontend",
+        "Developer Tools"
+      ],
+      "url": "https://github.com/Cde571/devfolios-explorer"
+    },
     {
       "name": "scroll-effects",
       "title": "Scroll Effects",

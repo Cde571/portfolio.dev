@@ -5,12 +5,12 @@ import ProjectCard from './ProjectCard.astro';
 const githubReposUrl = 'https://github.com/Cde571?tab=repositories';
 
 const featuredTitles = [
+  'FoodEmotions Showcase',
+  'Devfolios Explorer',
   'Jarvis Os',
   'Flappy Ml',
-  'Foodemotions Back',
-  'Proyecto Sustituto',
-  'CNN Red',
   'GraphQL Projects',
+  'Cameras Security',
 ];
 
 const byTitle = new Map(projects.map((project) => [project.title, project]));
@@ -32,7 +32,7 @@ const compactText = (project: Project) => [project.title, project.language, proj
       <span class="showcase-kicker">SELECTED WORK / CDE571</span>
       <h2 class="section-title">PROYECTOS DESTACADOS</h2>
       <p class="projects-subtitle">
-        Seis proyectos de IA, Python y backend que muestran problema, implementación y código. El resto queda disponible en GitHub.
+        Una selección de proyectos de IA, automatización, backend y producto web. Cada tarjeta abre el código verificable en GitHub.
       </p>
     </div>
     <a class="section-link section-link-primary" href={githubReposUrl} target="_blank" rel="noreferrer">
@@ -87,7 +87,7 @@ const compactText = (project: Project) => [project.title, project.language, proj
       <div class="projects-toolbar archive-toolbar">
         <label class="project-search archive-search">
           <i data-feather="search" aria-hidden="true"></i>
-          <input id="repoArchiveSearch" type="search" placeholder="Buscar en los 54 repos..." autocomplete="off" />
+          <input id="repoArchiveSearch" type="search" placeholder={`Buscar en los ${archiveProjects.length} repos...`} autocomplete="off" />
         </label>
         <div class="project-filter-row" aria-label="Filtros por lenguaje del archivo">
           <button class="archive-filter is-active" type="button" data-archive-filter="all">Todos</button>

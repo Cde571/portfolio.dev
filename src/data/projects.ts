@@ -18,6 +18,32 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    title: "FoodEmotions Showcase",
+    placeholder: "foodemotions-showcase",
+    description: "Showcase publico de producto con demo interactiva, arquitectura, 82 pantallas, 45 componentes y 85 pruebas verificadas.",
+    tags: ["Product", "Full-Stack", "AI", "Testing"],
+    image: "/projects/covers/food-emotions.webp",
+    language: "HTML",
+    category: "Product / Full-Stack",
+    updated: "Aug 23, 2026",
+    links: [
+      { label: "Demo", href: "https://foodemotions-showcase.vercel.app", type: "demo" },
+      { label: "Repositorio", href: "https://github.com/Cde571/foodemotions-showcase", type: "repo" },
+    ],
+  },
+  {
+    title: "Devfolios Explorer",
+    placeholder: "devfolios-explorer",
+    description: "Galeria visual de portafolios de desarrolladores construida con Astro para descubrir, comparar y explorar perfiles tecnicos.",
+    tags: ["Astro", "Frontend", "Developer Tools"],
+    language: "Astro",
+    category: "Web / Frontend",
+    updated: "Aug 10, 2026",
+    links: [
+      { label: "Repositorio", href: "https://github.com/Cde571/devfolios-explorer", type: "repo" },
+    ],
+  },
+  {
     title: "Scroll Effects",
     placeholder: "scroll-effects",
     description: "Experimental scroll effects, transitions and motion interactions for modern web interfaces.",
