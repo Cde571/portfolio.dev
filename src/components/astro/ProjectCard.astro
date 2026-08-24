@@ -2,23 +2,23 @@
 import type { Project } from '../../data/projects';
 
 const { project } = Astro.props as { project: Project };
-const repoLink = project.links.find((link) => link.type === "repo") ?? project.links[0];
+const primaryLink = project.links.find((link) => link.type === "demo") ?? project.links.find((link) => link.type === "repo") ?? project.links[0];
 ---
 
 <article
   class="project-card"
   data-reveal
   data-project-card
-  data-repo-href={repoLink?.href}
+  data-repo-href={primaryLink?.href}
   tabindex="0"
-  aria-label={`Abrir repositorio de ${project.title}`}
+  aria-label={`Abrir evidencia de ${project.title}`}
 >
   <a
     class="project-image project-image-link"
-    href={repoLink?.href}
+    href={primaryLink?.href}
     target="_blank"
     rel="noopener noreferrer"
-    aria-label={`Abrir ${project.title} en GitHub`}
+    aria-label={`Abrir evidencia de ${project.title}`}
     data-project-action
   >
     {project.image ? (
@@ -37,6 +37,7 @@ const repoLink = project.links.find((link) => link.type === "repo") ?? project.l
     <div class="repo-meta">
       {project.language ? <span>{project.language}</span> : null}
       {project.updated ? <span>{project.updated}</span> : null}
+      {project.private ? <span class="private-project-badge"><i data-feather="lock" aria-hidden="true"></i> Caso privado</span> : null}
     </div>
     <h3>{project.title}</h3>
     <p>{project.description}</p>
@@ -60,3 +61,17 @@ const repoLink = project.links.find((link) => link.type === "repo") ?? project.l
     </div>
   </div>
 </article>
+
+<style>
+  .private-project-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #fbbf24;
+  }
+
+  .private-project-badge :global(svg) {
+    width: 12px;
+    height: 12px;
+  }
+</style>

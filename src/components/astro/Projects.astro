@@ -3,8 +3,16 @@ import { projects, type Project } from '../../data/projects';
 import ProjectCard from './ProjectCard.astro';
 
 const githubReposUrl = 'https://github.com/Cde571?tab=repositories';
+const publicProjects = projects.filter((project) => !project.private);
+const privateProjects = projects.filter((project) => project.private);
 
 const featuredTitles = [
+  'CampaignForge',
+  'Vigilancia Pro Guardian V3',
+  'Promptscape SaaS Complete Flow',
+  'CoreForge 3D Landing',
+  'PS4 Scroll Three.js',
+  'Brasa 9 Scroll Video',
   'FoodEmotions Showcase',
   'Devfolios Explorer',
   'Jarvis Os',
@@ -18,8 +26,8 @@ const featuredProjects = featuredTitles
   .map((title) => byTitle.get(title))
   .filter((project): project is Project => Boolean(project));
 
-const fallbackFeatured = projects.filter((project) => !featuredProjects.includes(project)).slice(0, Math.max(0, 6 - featuredProjects.length));
-const showcaseProjects = [...featuredProjects, ...fallbackFeatured].slice(0, 6);
+const fallbackFeatured = projects.filter((project) => !featuredProjects.includes(project)).slice(0, Math.max(0, 12 - featuredProjects.length));
+const showcaseProjects = [...featuredProjects, ...fallbackFeatured].slice(0, 12);
 const archiveProjects = projects;
 const languages = Array.from(new Set(archiveProjects.map((project) => project.language).filter(Boolean))).sort();
 const repoLink = (project: Project) => project.links.find((link) => link.type === 'repo') ?? project.links[0];
@@ -32,11 +40,11 @@ const compactText = (project: Project) => [project.title, project.language, proj
       <span class="showcase-kicker">SELECTED WORK / CDE571</span>
       <h2 class="section-title">PROYECTOS DESTACADOS</h2>
       <p class="projects-subtitle">
-        Una selección de proyectos de IA, automatización, backend y producto web. Cada tarjeta abre el código verificable en GitHub.
+        Proyectos públicos y casos privados de IA, SaaS, seguridad, 3D y full-stack. Las capturas privadas provienen del proyecto ejecutado y están identificadas con claridad.
       </p>
     </div>
     <a class="section-link section-link-primary" href={githubReposUrl} target="_blank" rel="noreferrer">
-      Ver los {archiveProjects.length} repositorios <i data-feather="external-link" aria-hidden="true"></i>
+      Ver los {publicProjects.length} repositorios públicos <i data-feather="external-link" aria-hidden="true"></i>
     </a>
   </div>
 
@@ -46,12 +54,12 @@ const compactText = (project: Project) => [project.title, project.language, proj
       <span>destacados visibles</span>
     </div>
     <div>
-      <strong>{archiveProjects.length}</strong>
-      <span>repositorios en archivo</span>
+      <strong>{publicProjects.length}</strong>
+      <span>repositorios públicos</span>
     </div>
     <div>
-      <strong>{languages.length}</strong>
-      <span>tecnologías detectadas</span>
+      <strong>{privateProjects.length}</strong>
+      <span>capturas reales privadas</span>
     </div>
   </div>
 
@@ -78,7 +86,7 @@ const compactText = (project: Project) => [project.title, project.language, proj
     <summary>
       <span>
         <strong>ARCHIVO COMPLETO</strong>
-        <small>{archiveProjects.length} repositorios en formato compacto</small>
+        <small>{archiveProjects.length} proyectos: {publicProjects.length} públicos + {privateProjects.length} casos privados</small>
       </span>
       <i data-feather="chevron-down" aria-hidden="true"></i>
     </summary>
@@ -87,7 +95,7 @@ const compactText = (project: Project) => [project.title, project.language, proj
       <div class="projects-toolbar archive-toolbar">
         <label class="project-search archive-search">
           <i data-feather="search" aria-hidden="true"></i>
-          <input id="repoArchiveSearch" type="search" placeholder={`Buscar en los ${archiveProjects.length} repos...`} autocomplete="off" />
+          <input id="repoArchiveSearch" type="search" placeholder={`Buscar en los ${archiveProjects.length} proyectos...`} autocomplete="off" />
         </label>
         <div class="project-filter-row" aria-label="Filtros por lenguaje del archivo">
           <button class="archive-filter is-active" type="button" data-archive-filter="all">Todos</button>
@@ -97,7 +105,7 @@ const compactText = (project: Project) => [project.title, project.language, proj
         </div>
       </div>
 
-      <p class="project-result-count archive-result-count" id="repoArchiveResultCount">{archiveProjects.length} repositorios en archivo</p>
+      <p class="project-result-count archive-result-count" id="repoArchiveResultCount">{archiveProjects.length} proyectos catalogados</p>
 
       <div class="repo-archive-grid" id="repoArchiveGrid">
         {archiveProjects.map((project, index) => {
@@ -111,7 +119,7 @@ const compactText = (project: Project) => [project.title, project.language, proj
               data-repo-archive-card
               data-archive-search={compactText(project)}
               data-archive-language={project.language ?? ''}
-              aria-label={`Abrir ${project.title} en GitHub`}
+              aria-label={`Abrir evidencia de ${project.title}`}
             >
               <span class="archive-index">#{String(index + 1).padStart(2, '0')}</span>
               {project.image ? (
@@ -121,6 +129,7 @@ const compactText = (project: Project) => [project.title, project.language, proj
                 <strong>{project.title}</strong>
                 <small>{project.language ?? 'Repo'}{project.category ? ` · ${project.category}` : ''}</small>
               </span>
+              {project.private ? <span class="archive-private">PRIVADO</span> : null}
               <i data-feather="external-link" aria-hidden="true"></i>
             </a>
           );
@@ -153,7 +162,7 @@ const compactText = (project: Project) => [project.title, project.language, proj
         card.classList.toggle('is-archive-hidden', !show);
         if (show) visible += 1;
       });
-      if (count) count.textContent = `${visible} repositorios en archivo`;
+      if (count) count.textContent = `${visible} proyectos visibles`;
     }
 
     search && search.addEventListener('input', applyArchiveFilter);
@@ -335,7 +344,7 @@ const compactText = (project: Project) => [project.title, project.language, proj
   .repo-archive-card {
     --archive-delay: 0ms;
     display: grid;
-    grid-template-columns: auto 54px minmax(0, 1fr) auto;
+    grid-template-columns: auto 54px minmax(0, 1fr) auto auto;
     align-items: center;
     gap: 0.75rem;
     min-height: 76px;
@@ -377,6 +386,18 @@ const compactText = (project: Project) => [project.title, project.language, proj
 
   .archive-main { min-width: 0; }
 
+  .archive-private {
+    padding: 0.28rem 0.46rem;
+    border: 1px solid rgba(245, 158, 11, 0.38);
+    border-radius: 999px;
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.10);
+    font-family: var(--font-pixel, monospace);
+    font-size: 0.58rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+  }
+
   .archive-main strong,
   .archive-main small {
     display: block;
@@ -407,7 +428,8 @@ const compactText = (project: Project) => [project.title, project.language, proj
 
   @media (max-width: 560px) {
     .repo-archive-card { grid-template-columns: auto 44px minmax(0, 1fr); }
-    .repo-archive-card > svg { display: none; }
+    .repo-archive-card > svg,
+    .archive-private { display: none; }
     .archive-thumb { width: 44px; height: 44px; }
   }
 

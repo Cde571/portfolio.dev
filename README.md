@@ -168,7 +168,9 @@ Abrir `http://localhost:4321`.
 
 Esta versión mantiene el modelo visual original y agrega una sección de proyectos más completa:
 
-- 56 repositorios conectados con enlace directo a GitHub.
+- 56 repositorios públicos conectados con enlace directo a GitHub.
+- 28 casos visuales privados con capturas reales y etiquetado explícito.
+- 84 proyectos catalogados y 12 trabajos destacados en la portada.
 - Botón `Repositorio` corregido para abrir el repo real.
 - Miniatura PNG generada para cada proyecto.
 - Búsqueda y filtros por lenguaje.

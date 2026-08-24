@@ -2731,7 +2731,7 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
 
 /* =========================================================
    REPO SCROLL CINEMATIC PATCH
-   Efecto scroll atractivo para las 54 tarjetas sin cambiar la IU.
+   Efecto scroll atractivo para las tarjetas sin cambiar la IU.
    ========================================================= */
 .projects-section {
   position: relative;
@@ -3384,7 +3384,7 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
   min-width: 0 !important;
   max-width: none !important;
   min-height: 76px !important;
-  grid-template-columns: auto 54px minmax(0, 1fr) auto !important;
+  grid-template-columns: auto 54px minmax(0, 1fr) auto auto !important;
   box-sizing: border-box !important;
 }
 
@@ -3460,6 +3460,11 @@ import ScrollIndicator from './astro/ScrollIndicator.astro';
 
   .repo-archive-card {
     grid-template-columns: auto 44px minmax(0, 1fr) !important;
+  }
+
+  .archive-private,
+  .repo-archive-card > svg {
+    display: none !important;
   }
 
   .archive-thumb {

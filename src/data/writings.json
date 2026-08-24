@@ -223,9 +223,9 @@
           "Se separó la información en tres capas. Cada capa responde una pregunta distinta del visitante y evita que todas las tarjetas compitan con la misma intensidad."
         ],
         "bullets": [
-          "Destacados: seis proyectos con variedad visual y técnica para una lectura rápida.",
-          "Catálogo: 56 repositorios organizados en un archivo buscable por nombre, lenguaje y categoría.",
-          "Evidencia: 54 miniaturas locales asociadas a los proyectos documentados."
+          "Destacados: doce proyectos con variedad visual y técnica para una lectura rápida.",
+          "Catálogo: 56 repositorios públicos y 28 casos visuales privados, organizados por nombre, lenguaje y categoría.",
+          "Evidencia: 28 capturas reales de proyectos ejecutados, identificadas como casos privados cuando el código no es público."
         ]
       },
       {
